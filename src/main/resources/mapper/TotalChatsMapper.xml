@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smm.scrapMetal.dao.ITotalChatsDao">
+  <resultMap id="BaseResultMap" type="com.smm.scrapMetal.domain.TotalChats">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="customerId" jdbcType="INTEGER" property="customerId" />
+    <result column="lastChatId" jdbcType="INTEGER" property="lastChatId" />
+    <result column="lastestMsg" jdbcType="VARCHAR" property="lastestMsg" />
+    <result column="isDel" jdbcType="INTEGER" property="isDel" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updatedAt" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  <resultMap id="ListViewResultMap" type="com.smm.scrapMetal.dto.TotalChatsListView" extends="BaseResultMap">
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="nickName" property="nickName" jdbcType="VARCHAR" />
+    <result column="notReadNum" property="notReadNum" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    id, customerId, lastChatId, lastestMsg, isDel, createdAt, updatedAt
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fj_totalChats
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from fj_totalChats
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.smm.scrapMetal.domain.TotalChats">
+    insert into fj_totalChats (id, customerId, lastChatId, lastestMsg, createdAt,
+      updatedAt)
+    values (#{id,jdbcType=INTEGER}, #{customerId,jdbcType=INTEGER}, #{lastChatId,jdbcType=INTEGER}, #{lastestMsg,jdbcType=VARCHAR}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.smm.scrapMetal.domain.TotalChats">
+    insert into fj_totalChats
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="customerId != null">
+        customerId,
+      </if>
+      <if test="lastChatId != null">
+        lastChatId,
+      </if>
+      <if test="lastestMsg != null">
+        lastestMsg,
+      </if>
+      <if test="isDel != null">
+        isDel,
+      </if>
+      <if test="createdAt != null">
+        createdAt,
+      </if>
+      <if test="updatedAt != null">
+        updatedAt,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="customerId != null">
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="lastChatId != null">
+        #{lastChatId,jdbcType=INTEGER},
+      </if>
+      <if test="lastestMsg != null">
+        #{lastestMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.smm.scrapMetal.domain.TotalChats">
+    update fj_totalChats
+    <set>
+      <if test="customerId != null">
+        customerId = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="lastChatId != null">
+        lastChatId = #{lastChatId,jdbcType=INTEGER},
+      </if>
+      <if test="lastestMsg != null">
+        lastestMsg = #{lastestMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        isDel = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null">
+        createdAt = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null">
+        updatedAt = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.smm.scrapMetal.domain.TotalChats">
+    update fj_totalChats
+    set customerId = #{customerId,jdbcType=INTEGER},
+      lastChatId = #{lastChatId,jdbcType=INTEGER},
+      lastestMsg = #{lastestMsg,jdbcType=VARCHAR},
+      isDel = #{isDel,jdbcType=INTEGER},
+      createdAt = #{createdAt,jdbcType=TIMESTAMP}
+      updatedAt = #{updatedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByCustomerId" resultType="com.smm.scrapMetal.domain.TotalChats" parameterType="int">
+  	select 
+  	<include refid="Base_Column_List" />
+    from fj_totalChats
+    where customerId = #{customerId,jdbcType=INTEGER}
+  </select>
+  <select id="getList" resultMap="ListViewResultMap" parameterType="int" >
+    select 
+    tc.id, tc.customerId, tc.lastChatId, tc.lastestMsg,
+	(SELECT COUNT(1) FROM fj_chatRecords WHERE customerId = tc.customerId AND isRead = 0 and chatFromType = 'C') notReadNum,
+	tc.updatedAt, cu.name, cu.nickName
+    from fj_totalChats tc
+    LEFT JOIN fj_customer cu ON tc.customerId = cu.id
+    where tc.isDel = 0
+    order by updatedAt desc
+    limit #{start}, #{len};
+  </select>
+  <select id="countAll" resultType="int">
+  	select count(1) from fj_totalChats where isDel = 0;
+  </select>
+  
+  <select id="ExporChatList" resultMap="ListViewResultMap" parameterType="java.lang.String" >
+    select 
+    tc.id, tc.customerId, tc.lastChatId, tc.lastestMsg,
+	tc.updatedAt, cu.name, cu.nickName
+    from fj_totalChats tc
+    LEFT JOIN fj_customer cu ON tc.customerId = cu.id
+    where isDel = 0
+    <if test="ids !=null and ids !='' ">
+    	and tc.id in (${ids})
+    </if>
+    order by updatedAt desc
+    
+  </select>
+  <update id="deleteByIds" parameterType="java.lang.String">
+	  UPDATE fj_totalChats 
+		SET
+		 isDel = 1 
+			WHERE
+				id in(${ids})
+  </update>
+</mapper>

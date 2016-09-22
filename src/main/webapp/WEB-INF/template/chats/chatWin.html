@@ -1,0 +1,272 @@
+<!-- 模态窗口编辑模板 -->
+<!-- 窗口标题开始 -->
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+	<h4 class="modal-title" style="font-weight:bold;">${(customerInfo.name?? && customerInfo.name!='')?string(customerInfo.name, customerInfo.nickName)}</h4>
+</div>
+<!-- 窗口标题结束-->
+<!-- 内容开始 -->
+<div class="full_wrapper" style="height:500px;">
+	<div class="main">
+		<div class="xb_pageCont xb_flex">
+			<div class="page_body" id="xb_page_body">
+				<div id="xb_chat_content" >
+					<#list lastestMsg as record>
+						<#if record_index == 0>
+							<div style="text-align:center;color:gray;">
+								${record.createdAt?string('yyyy/MM/dd HH:mm:ss')}
+							</div>
+						</#if>
+						<#if record.chatFromType == 'U'>
+							<div class="xb_conversation_item">
+								<div class="xb_conv_wrap_right">
+									<img class="xb_avatar_right" src="${request.getContextPath()}/Public/images/chats/employee_avatar.png">
+									<div class="xb_tri_right"></div>
+									<div class="xb_tri_right1"></div>
+									<#if record.type=0 && record.subType = 0>
+										<div class="xb_conv_right">${record.content}</div>
+									<#elseif record.type =0 && record.subType=2>
+										<div class="xb_conv_right"><img src="${record.content}" onclick="viewImgInNewWin(this)" /></div>
+									<#elseif record.type =1 && record.subType=3>
+										<#assign orderCreatedRemindJson=record.content?eval />
+										<div class="xb_conv_right"><a style="text-decoration: underline;" href="javascript:orders_details(${orderCreatedRemindJson.id})">订单已生成</a></div>
+									</#if>
+								</div>
+							</div>
+						<#else>
+							<#if record.type = 0 && record.subType =0>
+								<div class="xb_conversation_item">
+									<div class="xb_conv_wrap_left">
+										<img class="xb_avatar_left" src="${customerInfo.weChatAvatar}">
+										<div class="xb_tri_left"></div>
+										<div class="xb_tri_left1"></div>
+										<div class="xb_conv_left">${record.content}</div>
+									</div>
+								</div>
+							</#if>
+						</#if>
+						<#if record.type =2 && record.subType=0>
+							<#assign infoTitleJson=record.content?eval />
+							<div class="infoTitleDiv">
+								<a href='javascript:gotoDetailOfSupplyOrPurchase(${infoTitleJson.source}, ${infoTitleJson.sourceId});'  target='_blank' >${infoTitleJson.infoTitle}</a>
+							</div>
+						</#if>
+					</#list>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<input type="file" name="file" id="file" onchange="getfilename(${customerInfo.id})" style="width:0;height:0;"/>
+<input type="hidden" id="chatIdForCurrChat" value="${chatId}"/>
+<input type="hidden" id="customerIdForCurrChat" value="${customerInfo.id}"/>
+<!-- 内容结束 -->
+<!-- 底部按钮开始 -->
+<div class="modal-footer" style="text-align: center;padding:0;">
+	<div id="xb_btn_field" class="xb_btn_area">
+		<div id="UI_ButtonID.Start" class="xb_btn_container"
+			style="width: 200px;">
+			<a href="javascript:void(0)" onclick="sendPic()" class="sendImgBtn"></a>
+			<input type="text" id="currMsg" name="currMsg" class="text_basic"/>
+			 <a href="javascript:void(0)" style="width: 100px;" id="sendBtn" onclick="send(${customerInfo.id})" class="btn_basic wechatGreen text_holder">发送</a>
+		</div>
+	</div>
+</div>
+<style>
+	#currMsg{
+		width: 444px;
+	}
+	.sendImgBtn{
+		background:url(${request.getContextPath()}/Public/images/chats/sendImgBtn.png) no-repeat;
+		width:32px;
+		height:41px;
+		display:inline-block;
+		vertical-align: middle;
+	}
+	.xb_conv_left img, .xb_conv_right img {
+		width:154px;
+		cursor:pointer;
+	}
+	.infoTitleDiv{
+		text-align:left;
+		padding:20px 0;
+	}
+	.infoTitleDiv a{
+		padding:0 0 10px 10px;;
+		text-decoration:underline;
+		font-weight:600;
+	}
+</style>
+<script type="text/javascript">
+	var lastestTime = ${lastestTime};
+	$(function(){
+		$("#currMsg").keydown(function(event){
+			if(event.keyCode==13){
+				$("#sendBtn").click();
+			}
+		});
+		$("#xb_page_body").scroll(function () {
+			if ($("#xb_page_body").scrollTop() == 0) {
+				sendRequestForGetHistoryMessage(${customerInfo.id}, $("#chatIdForCurrChat").val(), lastestTime);
+			}
+		});
+	});
+	
+	function sendRequestForGetHistoryMessage(customerId, chatId){
+		Chats.getHistoryMessage(customerId, chatId, lastestTime, 10);
+	}
+	
+	function send(customerId) {
+		var chatId = $("#chatIdForCurrChat").val();
+		var text = $("#currMsg").val();
+		if(!text){
+			alert("发送消息不能为空");
+			return;
+		}
+		if(Chats.sendPlainTextMessage(customerId, chatId, text)) {
+			appendMessage('U', text);
+		}
+		$("#currMsg").val('');
+	}
+	
+	function prependHistoryMessage(jsonMsg){
+		var prevScrollHeight = $("#xb_page_body")[0].scrollHeight;
+		for(var i = 0; i < jsonMsg.length; i++){
+			if(jsonMsg[i].type==0 && jsonMsg[i].subType == 0){
+				prependMessage(jsonMsg[i].chatFromType, jsonMsg[i].content);
+			} else if(jsonMsg[i].type==0 && jsonMsg[i].subType == 2){
+				prependImgMessage(jsonMsg[i].chatFromType, jsonMsg[i].content);
+			} else if(jsonMsg[i].type==1 && jsonMsg[i].subType == 3){ 
+				var orderMsg = JSON.parse(jsonMsg[i].content);
+				prependMessage('U', "<a style=\"text-decoration: underline;\" href=\"javascript:orders_details("+orderMsg.id+")\">订单已生成</a>");
+			} else if(jsonMsg[i].type==2 && jsonMsg[i].subType == 0){
+				var infoTitleMsg = JSON.parse(jsonMsg[i].content);
+				prependInfoTitle(infoTitleMsg.source, infoTitleMsg.sourceId, infoTitleMsg.infoTitle);
+			}
+		}
+		lastestTime = jsonMsg[jsonMsg.length - 1]['createdAt'];
+		var currScrollHeight = $("#xb_page_body")[0].scrollHeight;
+		$("#xb_page_body").scrollTop(currScrollHeight - prevScrollHeight);
+	}
+	function appendInfoTitle(source, sourceId, infoTitle){
+		var html= '<div class="infoTitleDiv"><a  target="_blank" href="javascript:gotoDetailOfSupplyOrPurchase('+source+', '+sourceId+')">' + infoTitle +'</a></div>';
+		$("#xb_chat_content").append(html);
+		$("#xb_page_body").scrollTop($("#xb_page_body")[0].scrollHeight);
+	}
+	function prependInfoTitle(source, sourceId, infoTitle){
+		var html= '<div class="infoTitleDiv"><a  target="_blank" href="javascript:gotoDetailOfSupplyOrPurchase('+source+', '+sourceId+')">' + infoTitle +'</a></div>';
+		$("#xb_chat_content").prepend(html);
+	}
+	
+	function gotoDetailOfSupplyOrPurchase(source, sourceId){
+		var href ='';
+		if(source == 1){
+			href = BASE_URL + '/supply/supplyDetail.do?id=' + sourceId;
+		} else {
+			href = BASE_URL + '/Purchase/purchasDetail.do?id=' + sourceId;
+		}
+		
+		window.open(BASE_URL + '/user/loginSucc.do?actionNameForMainPageFrame='+href);
+	}
+	
+	function appendMessage(chatFromType, content){
+		var html = buildHtmlMessage(chatFromType, content);
+		$("#xb_chat_content").append(html);
+		$("#xb_page_body").scrollTop($("#xb_page_body")[0].scrollHeight);
+	}
+	function prependMessage(chatFromType, content){
+		var html = buildHtmlMessage(chatFromType, content);
+		$("#xb_chat_content").prepend(html);
+	}
+	function buildHtmlMessage(chatFromType, content){
+		var html = '';
+		if(chatFromType == 'U'){
+			html += '<div class="xb_conversation_item">'
+				+		'<div class="xb_conv_wrap_right">'
+				+			'<img class="xb_avatar_right" src="${request.getContextPath()}/Public/images/chats/employee_avatar.png">'
+				+			'<div class="xb_tri_right"></div>'
+				+			'<div class="xb_tri_right1"></div>'
+				+			'<div class="xb_conv_right">' + content + '</div>'
+				+		'</div>'
+				+	'</div>';
+		} else {
+			html +='<div class="xb_conversation_item">'
+				+		'<div class="xb_conv_wrap_left">'
+				+			'<img class="xb_avatar_left" src="${customerInfo.weChatAvatar}">'
+				+			'<div class="xb_tri_left"></div>'
+				+			'<div class="xb_tri_left1"></div>'
+				+			'<div class="xb_conv_left">' + content + '</div>'
+				+		'</div>'
+				+	'</div>';
+		}
+		return html;
+	}
+	function appendImgMessage(chatFromType, imgPath){
+		var html = buildImgMessage(chatFromType, imgPath);
+		$("#xb_chat_content").append(html);
+		$("#xb_chat_content .xb_conversation_item:last img").load(function(){
+			$("#xb_page_body").scrollTop($("#xb_page_body")[0].scrollHeight);
+		});
+	}
+	function prependImgMessage(chatFromType, imgPath){
+		var html = buildImgMessage(chatFromType, imgPath);
+		$("#xb_chat_content").prepend(html);
+	}
+	function buildImgMessage(chatFromType, imgPath){
+		var html = '';
+		if(chatFromType == 'U'){
+			html += '<div class="xb_conversation_item">'
+				+		'<div class="xb_conv_wrap_right">'
+				+			'<img class="xb_avatar_right" src="${request.getContextPath()}/Public/images/chats/employee_avatar.png">'
+				+			'<div class="xb_tri_right"></div>'
+				+			'<div class="xb_tri_right1"></div>'
+				+			'<div class="xb_conv_right"><img src="' + imgPath + '" onclick="viewImgInNewWin(this)" /></div>'
+				+		'</div>'
+				+	'</div>';
+		} else {
+			html +='<div class="xb_conversation_item">'
+				+		'<div class="xb_conv_wrap_left">'
+				+			'<img class="xb_avatar_left" src="${customerInfo.weChatAvatar}">'
+				+			'<div class="xb_tri_left"></div>'
+				+			'<div class="xb_tri_left1"></div>'
+				+			'<div class="xb_conv_left"><img src="' + imgPath + '" /></div>'
+				+		'</div>'
+				+	'</div>';
+		}
+		return html;
+	}
+	function sendPic(){
+		$("#file").click();
+	}
+	
+	function viewImgInNewWin(event){
+		window.open(event.src);
+	}
+	
+	function orders_details(orderId){
+		CommonUtils.editModal(BASE_URL + "/order/queryOrderInfo.do?id="+orderId, 1000);
+	}
+	function getfilename(customerId, chatId){
+		var chatId = $("#chatIdForCurrChat").val();
+		$.ajaxFileUpload({
+			url : "${request.getContextPath()}/supply/uploadmethod.do",
+			secureuri : false,
+			fileElementId : 'file', // 文件选择框的id属性
+			dataType : 'json', // 服务器返回的格式，可以是json
+			success : function(data){
+				if (data.code == "000000") {
+					var chatImgUrl = data.imgServerAddress + data.data;
+					if(Chats.sendImgMessage(customerId, chatId, chatImgUrl)) {
+						appendImgMessage('U', chatImgUrl);
+					}
+				}else{
+				      alert("上传失败");
+				}
+			},
+			error : function(data, e) 
+			{
+				alert("图片发送失败："+e);
+			}
+		});
+	}
+</script>

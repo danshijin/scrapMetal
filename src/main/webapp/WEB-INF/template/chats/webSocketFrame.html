@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>SMM废金属管理系统-聊天</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+</head>
+<body class="login">
+<!-- 我是聊天小窗体 -->
+<script>if(typeof(BASE_URL) == "undefined") BASE_URL = '${request.getContextPath()}'; </script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/js/chats/chatController.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(function(){
+		Chats.init("${Session['userInfo']['id']}");
+	});
+</script>
+</body>
+</html>

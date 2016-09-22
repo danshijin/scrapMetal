@@ -1,0 +1,94 @@
+<div class="page-header-menu">
+	<div class="container-fluid">
+		<!-- 菜单开始 -->
+		<div class="hor-menu ">
+			<ul class="nav navbar-nav">
+				<li id="menu-0">
+					<a href="#" onclick="gotoMenu('0','0','${request.getContextPath()}/user/showMainPage.do')">首&nbsp;&nbsp;页</a>
+				</li>
+				<li class="menu-dropdown mega-menu-dropdown " id="menu-1">
+					<a data-hover="megamenu-dropdown" data-close-others="true"
+						data-toggle="dropdown" href="javascript:;"> 
+						客户管理 <i class="fa fa-angle-down"></i>
+					</a>
+					<ul class="dropdown-menu pull-left">
+						<li id="menu-1-1">
+							<a href="javascript:;" onclick="gotoMenu('1','1','${request.getContextPath()}/customer/customerList.do')">
+								<i class="icon-briefcase"></i>客户池
+							</a>
+						</li>
+					</ul>
+				</li>  
+				<li class="menu-dropdown mega-menu-dropdown" id="menu-2">
+					<a data-hover="megamenu-dropdown" data-close-others="true"
+						data-toggle="dropdown" href="javascript:;"> 
+						废金属管理 <i class="fa fa-angle-down"></i>
+					</a>
+					<ul class="dropdown-menu pull-left">
+						<li id="menu-2-1">
+							<a href="javascript:;" onclick="gotoMenu('2','1','${request.getContextPath()}/supply/orderListWeb.do?status=1')"> 
+								<i class="icon-briefcase"></i>供货单管理
+							</a>
+						</li>
+						<li id="menu-2-2">
+							<a href="javascript:;" onclick="gotoMenu('2','2','${request.getContextPath()}/Purchase/list.do?status=1')"> 
+								<i class="icon-wallet"></i>采购单管理
+							</a>
+						</li>
+						<li id="menu-2-3">
+							<a href="javascript:;" onclick="gotoMenu('2','3','${request.getContextPath()}/order/query.do')"> 
+								<i class="icon-bar-chart"></i>订单管理
+							</a>
+						</li>
+					</ul>
+				</li>
+				<li class="menu-dropdown" id="menu-3">
+					<a href="javascript:;" onclick="gotoMenu('3','0','${request.getContextPath()}/chats/index.do')"
+						class="tooltips" data-container="body" data-placement="bottom"
+						data-html="true" data-original-title="消息中心">消息中心
+					</a>
+				</li>
+				
+				<!-- 
+				<li class="menu-dropdown" id="menu-3">
+					<a href="javascript:;" onclick="gotoMenu('3','0','${request.getContextPath()}/itemattr/getAll.do')"
+						class="tooltips" data-container="body" data-placement="bottom"
+						data-html="true" data-original-title="商品管理">商品管理 
+					</a>
+				</li>
+				<li class="menu-dropdown mega-menu-dropdown" id="menu-4">
+					<a data-hover="megamenu-dropdown" data-close-others="true"
+						data-toggle="dropdown" href="javascript:;"> 
+						统计分析<i class="fa fa-angle-down"></i>
+					</a>
+					<ul class="dropdown-menu pull-left">
+					</ul>
+				</li> -->
+				<li class="menu-dropdown mega-menu-dropdown" id="menu-5">
+					<a data-hover="megamenu-dropdown" data-close-others="true"
+						data-toggle="dropdown" href="javascript:;"> 
+						系统设置 <i class="fa fa-angle-down"></i>
+					</a>
+					<ul class="dropdown-menu pull-left">
+						<li id="menu-5-1">
+							<a href="javascript:;" onclick="gotoMenu('5','1','${request.getContextPath()}/item/list.do')"> 
+								<i class="icon-briefcase"></i>分类设置
+							</a>
+						</li>
+						<li id="menu-5-2">
+							<a href="javascript:;" onclick="gotoMenu('5','2','${request.getContextPath()}/price/list.do')"> 
+								<i class="icon-briefcase"></i>价格说明
+							</a>
+						</li>
+						<li id="menu-5-3">
+							<a href="javascript:;" onclick="gotoMenu('5','3','${request.getContextPath()}/delivery/list.do')"> 
+								<i class="icon-briefcase"></i>交货方式
+							</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<!-- 菜单结束 -->
+	</div>
+</div>

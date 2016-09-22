@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.smm.scrapMetal.dao.ICustomerDao">
+
+<select id="showCustomerListPage" resultType="com.smm.scrapMetal.domain.Customer" parameterType="java.util.Map">	
+SELECT DISTINCT c.id,c.pic,u.name userName,c.nickName,c.phone,c.scrapItemIds,c.name,
+		c.address,c.companyName,c.entTypes,c.categorybusiness,c.email,c.prov,c.city,
+		c.createdAt,		
+			 MAX(o.dealTime) dealTime,a.name goodsCityName,a1.name goodsProvName,c.isSpread
+			FROM fj_customer c
+			LEFT JOIN 
+			 fj_orders o ON o.sellerId=c.id OR o.buyerId=c.id
+			LEFT JOIN fj_users   u ON u.id=c.pic
+			LEFT JOIN ch_areas a ON c.city=a.id
+			LEFT JOIN ch_areas a1 ON c.prov=a1.id
+		
+		WHERE 
+		<if test="del == 1">
+		c.infoStatus=1
+		</if>
+		<if test="del == 0">
+		c.infoStatus=0
+		</if>
+		
+		<if test="categorybusiness == 1">
+		AND (c.categorybusiness=1 or c.categorybusiness=3)
+		</if>
+		<if test="categorybusiness == 2">
+		AND (c.categorybusiness=2 or c.categorybusiness=3)
+		</if>
+		
+		
+		<if test="phone != null">
+		AND c.phone
+		like  '%${phone}%' 
+		</if>
+		<if test="nickName != null">
+	    AND c.nickName
+	    like  '%${nickName}%' 
+	    </if>
+	    <if test="companyName != null">
+		AND c.companyName like  '%${companyName}%' 
+		</if>
+		 <if test="name != null">
+		AND c.name like  '%${name}%' 
+		</if>
+		 <if test="userName != null">
+		AND u.name like  '%${userName}%' 
+		</if>
+		
+		<if test="itemName != null">
+		AND 	FIND_IN_SET(#{itemName},c.scrapItemIds)  
+		</if>
+		<if test="goodsCity != null">
+		AND c.city=#{goodsCity}
+		</if>
+		<if test="goodsProv != null">
+		AND c.prov=#{goodsProv}
+		</if>
+		<if test="createdAt != null">
+		AND c.createdAt>=#{startDay} 
+		<![CDATA[
+		AND c.createdAt<=#{endDay}
+		 ]]>
+		</if>
+		<if test="userId != null">
+		AND c.pic=#{userId} 
+		</if>
+		<if test="otherUserId != null">
+		AND c.pic!=#{otherUserId} 
+		</if>
+		<if test="updatedAt != null">
+		AND c.updatedAt>=#{startDay} 
+		<![CDATA[
+		AND c.updatedAt<=#{endDay}
+		 ]]>
+		</if>
+		<if test="dealTime != null">
+		AND o.dealTime>=#{startDay}
+		<![CDATA[
+		AND o.dealTime<=#{endDay}
+		 ]]>
+		</if>
+		GROUP BY c.id
+		order by c.createdAt desc
+		limit #{startNum},#{endNum}
+</select>
+
+
+<select id="showCustomerListPageCount" resultType="java.lang.Integer" parameterType="java.util.Map">	
+SELECT COUNT(a.id) FROM (
+	SELECT DISTINCT c.id,c.pic,u.name userName,c.nickName,c.phone,c.scrapItemIds,c.name,
+		c.address,c.companyName,c.entTypes,c.categorybusiness,c.email,c.prov,c.city,
+		c.createdAt,		
+			 MAX(o.dealTime) dealTime
+			FROM fj_customer c
+			LEFT JOIN 
+			 fj_orders o ON o.sellerId=c.id OR o.buyerId=c.id
+			LEFT JOIN fj_users   u ON u.id=c.pic
+		WHERE 
+		<if test="del == 1">
+		c.infoStatus=1
+		</if>
+		<if test="del == 0">
+		c.infoStatus=0
+		</if>
+		
+		<if test="categorybusiness == 1">
+		AND (c.categorybusiness=1 or c.categorybusiness=3)
+		</if>
+		<if test="categorybusiness == 2">
+		AND (c.categorybusiness=2 or c.categorybusiness=3)
+		</if>
+		
+		<if test="phone != null">
+		AND c.phone
+		like  '%${phone}%' 
+		</if>
+		<if test="nickName != null">
+	    AND c.nickName
+	    like  '%${nickName}%' 
+	    </if>
+	    <if test="companyName != null">
+		AND c.companyName like  '%${companyName}%' 
+		</if>
+		 <if test="name != null">
+		AND c.name like  '%${name}%' 
+		</if>
+		 <if test="userName != null">
+		AND u.name like  '%${userName}%' 
+		</if>
+		
+		<if test="itemName != null">
+		AND 	FIND_IN_SET(#{itemName},c.scrapItemIds) 
+		</if>
+		<if test="goodsCity != null">
+		AND c.city=#{goodsCity}
+		</if>
+		<if test="goodsProv != null">
+		AND c.prov=#{goodsProv}
+		</if>
+		<if test="createdAt != null">
+		AND c.createdAt>=#{startDay} 
+		<![CDATA[
+		AND c.createdAt<=#{endDay}
+		 ]]>
+		</if>
+		<if test="userId != null">
+		AND c.pic=#{userId} 
+		</if>
+		<if test="otherUserId != null">
+		AND c.pic!=#{otherUserId} 
+		</if>
+		<if test="updatedAt != null">
+		AND c.updatedAt>=#{startDay} 
+		<![CDATA[
+		AND c.updatedAt<=#{endDay}
+		 ]]>
+		</if>
+		<if test="dealTime != null">
+		AND o.dealTime>=#{startDay}
+		<![CDATA[
+		AND o.dealTime<=#{endDay}
+		 ]]>
+		</if>
+			GROUP BY c.id
+	) a
+</select>
+
+
+<select id="showCustomerList" resultType="com.smm.scrapMetal.domain.Customer" parameterType="java.util.Map">	
+SELECT DISTINCT c.id,c.pic,u.name userName,c.nickName,c.phone,c.scrapItemIds,c.name,
+		c.address,c.companyName,c.entTypes,c.categorybusiness,c.email,c.prov,c.city,
+		c.createdAt,		
+			 MAX(o.dealTime) dealTime,a.name goodsCityName,a1.name goodsProvName,c.isSpread
+			FROM fj_customer c
+			LEFT JOIN 
+			 fj_orders o ON o.sellerId=c.id OR o.buyerId=c.id
+			LEFT JOIN fj_users   u ON u.id=c.pic
+			LEFT JOIN ch_areas a ON c.city=a.id
+			LEFT JOIN ch_areas a1 ON c.prov=a1.id
+		WHERE 
+		<if test="del == 1">
+		c.infoStatus=1
+		</if>
+		<if test="del == 0">
+		c.infoStatus=0
+		</if>
+		<if test="ids != null and ids!=''">
+		and c.id in (${ids})
+		</if>
+		
+		<if test="categorybusiness == 1">
+		AND (c.categorybusiness=1 or c.categorybusiness=3)
+		</if>
+		<if test="categorybusiness == 2">
+		AND (c.categorybusiness=2 or c.categorybusiness=3)
+		</if>
+		
+		<if test="phone != null">
+		AND c.phone
+		like  '%${phone}%' 
+		</if>
+		<if test="nickName != null">
+	    AND c.nickName
+	    like  '%${nickName}%' 
+	    </if>
+	    <if test="companyName != null">
+		AND c.companyName like  '%${companyName}%' 
+		</if>
+		 <if test="name != null">
+		AND c.name like  '%${name}%' 
+		</if>
+		 <if test="userName != null">
+		AND u.name like  '%${userName}%' 
+		</if>
+		
+		<if test="itemName != null">
+		AND 	FIND_IN_SET(#{itemName},c.scrapItemIds) 
+		
+		</if>
+			<if test="goodsCity != null">
+		AND c.city=#{goodsCity}
+		</if>
+		<if test="goodsProv != null">
+		AND c.prov=#{goodsProv}
+		</if>
+		<if test="createdAt != null">
+		AND c.createdAt>=#{startDay} 
+		<![CDATA[
+		AND c.createdAt<=#{endDay}
+		 ]]>
+		</if>
+		<if test="userId != null">
+		AND c.pic=#{userId} 
+		</if>
+		<if test="otherUserId != null">
+		AND c.pic!=#{otherUserId} 
+		</if>
+		<if test="updatedAt != null">
+		AND c.updatedAt>=#{startDay} 
+		<![CDATA[
+		AND c.updatedAt<=#{endDay}
+		 ]]>
+		</if>
+		<if test="dealTime != null">
+		AND o.dealTime>=#{startDay}
+		<![CDATA[
+		AND o.dealTime<=#{endDay}
+		 ]]>
+		</if>
+		GROUP BY c.id
+		 order by c.createdAt desc
+</select>
+
+
+
+
+
+	<delete id="deleteCustomerByIds" parameterType="java.lang.String">
+		update 
+		fj_customer 
+		set
+		infoStatus =1 
+		where id in (${value})
+	</delete>
+	
+	<insert id="addCustomer" parameterType="com.smm.scrapMetal.domain.Customer">
+	insert into fj_customer
+		(
+			pic,
+			nickName,
+			phone,
+			name,
+			address,
+			companyName,
+			email,
+			openId,
+			weChatAvatar,
+			scrapItemIds,
+			entTypes,
+			categorybusiness,
+			infoStatus,
+			createdAt,
+			createdBy,
+			updatedAt,
+			updatedBy,
+			prov,
+			city,
+			isSpread
+		)
+		 values
+		(
+			#{pic},
+			#{nickName, jdbcType=VARCHAR},
+			#{phone},
+			#{name, jdbcType=VARCHAR},
+			#{address, jdbcType=VARCHAR},
+			#{companyName, jdbcType=VARCHAR},
+			#{email, jdbcType=VARCHAR},
+			#{openId, jdbcType=VARCHAR},
+			#{weChatAvatar, jdbcType=VARCHAR},
+			#{scrapItemIds},
+			#{entTypes, jdbcType=VARCHAR},
+			#{categorybusiness,jdbcType=VARCHAR},
+			0,
+			now(),
+			#{createdBy},
+			now(),
+			#{updatedBy},
+			#{prov},
+			#{city},
+			#{isSpread}
+		)
+	</insert>
+	<select id="showCustomerDetail" resultType="com.smm.scrapMetal.domain.Customer" parameterType="java.lang.Integer">
+		   SELECT
+			  c.id,
+			  c.pic,
+			  c.nickName,
+			  c.weChatID,
+			  c.weChatAvatar,
+			  c.phone,
+			  c.scrapItemIds,
+			  c.name,
+			  c.address,
+			  c.companyName,
+			  c.entTypes,
+			  c.categorybusiness,
+			  c.email,
+			  c.createdAt,
+			  c.createdBy,
+			  c.prov,
+			  c.city,
+			  u.name userName,
+			  a.name goodsCityName,a1.name goodsProvName
+			 FROM fj_customer c 
+			 LEFT JOIN fj_users   u ON u.id=c.pic
+			 LEFT JOIN ch_areas a ON c.city=a.id
+			LEFT JOIN ch_areas a1 ON c.prov=a1.id
+		  WHERE c.id=#{id}
+	</select>
+		<update id="updateCustomer" parameterType="com.smm.scrapMetal.domain.Customer">
+		update fj_customer 
+			set 
+			<if test="pic != null">
+			pic=#{pic},
+			</if>
+			<if test="openId != null">
+			openId=#{openId},
+			</if>
+			<if test="weChatAvatar != null">
+			weChatAvatar=#{weChatAvatar},
+			</if>
+			<if test="nickName != null">
+			nickName=#{nickName},
+			</if>
+			<if test="phone != null">
+			phone=#{phone,jdbcType=VARCHAR},
+			</if>
+			<if test="scrapItemIds != null">
+			scrapItemIds=#{scrapItemIds,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+			name=#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+			address=#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="companyName != null">
+			companyName=#{companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="entTypes != null">
+			entTypes=#{entTypes,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+			email=#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="categorybusiness != null">
+			categorybusiness=#{categorybusiness,jdbcType=VARCHAR},
+			</if>
+			<if test="prov != null">
+			prov=#{prov},
+			<choose>
+				<when test="prov == 1 or prov == 2 or prov == 3 or prov == 4">
+					city=null,
+				</when>
+				<otherwise>
+					<if test="city != null">
+							city=#{city,jdbcType=VARCHAR},
+					</if>
+				</otherwise>
+				
+			</choose>
+			</if>
+			
+			updatedAt=now(),
+			updatedBy=#{updatedBy}
+		where id=#{id}
+		</update>
+		
+		<update id="updateCustomerByPhone" parameterType="com.smm.scrapMetal.domain.Customer">
+		update fj_customer 
+			set 
+			<if test="pic != null">
+			pic=#{pic},
+			</if>
+			<if test="scrapItemIds != null">
+			scrapItemIds=#{scrapItemIds,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+			name=#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="nickName != null">
+			nickName=#{nickName,jdbcType=VARCHAR},
+			</if>
+			<if test="address != null">
+			address=#{address,jdbcType=VARCHAR},
+			</if>
+			<if test="companyName != null">
+			companyName=#{companyName,jdbcType=VARCHAR},
+			</if>
+			<if test="entTypes != null">
+			entTypes=#{entTypes,jdbcType=VARCHAR},
+			</if>
+			<if test="email != null">
+			email=#{email,jdbcType=VARCHAR},
+			</if>
+			<if test="categorybusiness != null">
+			categorybusiness=#{categorybusiness,jdbcType=VARCHAR},
+			</if>
+			<if test="prov != null">
+			prov=#{prov},
+			</if>
+			<if test="city != null">
+			city=#{city,jdbcType=VARCHAR},
+			</if>
+			updatedAt=now(),
+			updatedBy=#{updatedBy}
+		where openId=#{openId}
+		</update>
+		<select id="showClientCustomerDetail" resultType="com.smm.scrapMetal.domain.Customer" parameterType="java.lang.String">
+	 SELECT
+				  c.id,
+				  c.pic,
+				  c.openId,
+				  c.nickName,
+				  c.weChatID,
+				  c.weChatAvatar,
+				  c.phone,
+				  c.scrapItemIds,
+				  c.name,
+				  c.address,
+				  c.companyName,
+				  c.entTypes,
+				  c.categorybusiness,
+				  c.email,
+				  c.createdAt,
+				  c.createdBy,
+				  c.prov,
+				  c.city,
+				 (SELECT COUNT(*) FROM fj_orders o WHERE o.orderStatus!=3 AND (o.buyerId=c.id OR o.sellerId=c.id) )   orderCount,
+				   (SELECT COUNT(*) FROM fj_purchase p WHERE p.customerId=c.id AND infoStatus!=4)+
+				   (SELECT COUNT(*) FROM fj_supply s WHERE s.customerId=c.id AND infoStatus!=4)  publishCount,
+				   (SELECT COUNT(*) FROM fj_favorite f WHERE f.customerId=c.id ) favoriteCount
+			 FROM fj_customer c 
+			
+			WHERE c.openId=#{openId}
+			GROUP BY c.id
+		
+		</select>
+		
+		
+	<select id="customerIsLogin" resultType="java.lang.Integer" parameterType="java.util.Map">
+		 SELECT count(*) FROM fj_customer c 
+			WHERE  c.infoStatus=#{infoStatus}
+			 and c.openId=#{openId}
+	</select>
+		
+	<update id="editCustomerStatusByOpenId" parameterType="java.util.Map">
+		update 
+		fj_customer 
+		set
+		infoStatus =#{infoStatus}
+		where openId =#{openId}
+	</update>
+	
+	<select id="selectCustomerIdByOpenId" parameterType="java.lang.String" resultType="java.lang.Integer">
+		select id from fj_customer where openId = #{openId};
+	</select>
+	
+	<select id="selectCustomerIdByPhone" parameterType="java.lang.String" resultType="com.smm.scrapMetal.domain.Customer">
+		select c.id,
+				  c.pic,
+				  c.openId,
+				  c.nickName,
+				  c.weChatID,
+				  c.weChatAvatar,
+				  c.phone,
+				  c.scrapItemIds,
+				  c.name,
+				  c.address,
+				  c.companyName,
+				  c.entTypes,
+				  c.categorybusiness,
+				  c.email,
+				  c.createdAt,
+				  c.createdBy,
+				  c.prov,
+				  c.city
+				   from fj_customer c where c.phone = #{phone};
+	</select>
+	
+	<select id="selectNickNameById" parameterType="int" resultType="java.lang.String">
+		SELECT CASE nickName WHEN '' THEN NAME WHEN NULL THEN NAME ELSE nickName END AS showName FROM fj_customer where id = #{id};
+	</select>
+	
+	
+</mapper>

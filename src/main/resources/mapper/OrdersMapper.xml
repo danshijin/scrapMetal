@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.smm.scrapMetal.dao.IOrdersDAO">
+
+	<select id="getOrderList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Orders">	
+	SELECT tb.* FROM 
+		(
+		SELECT o.sourceId,o.buyerId,o.sellerId,
+		CASE o.source WHEN 1 THEN i1.name ELSE i2.name END 'metalName' ,
+		o.orderNo,s.infoTitle,o.source,p.infoTitle as pTitle,o.infoTitle as orderTitle,o.quantity,o.quantityUnit,o.price,o.priceUnit,o.createdAt,o.dealTime,o.orderStatus 
+		FROM fj_orders o 
+		LEFT JOIN fj_supply s ON o.sourceId=s.id
+		LEFT JOIN fj_purchase p ON o.sourceId=p.id
+		LEFT JOIN fj_items i1 ON s.itemId=i1.id
+		LEFT JOIN fj_items i2 ON p.itemId=i2.id
+		) tb 
+		WHERE tb.buyerId = #{customerId} OR tb.sellerId = #{customerId} 
+		ORDER BY tb.createdAt desc 
+		LIMIT #{startNum},#{endNum}
+	</select>
+	
+	<select id="getOrderCount" parameterType="java.util.Map" resultType="java.lang.Integer">	
+	SELECT COUNT(*) FROM fj_orders
+		WHERE buyerId = #{customerId} OR sellerId = #{customerId}
+	</select>
+	
+	<select id="getReleaseList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Orders">	
+	SELECT tb.*,i.name 'metalName' FROM (
+		SELECT id,itemId,infoTitle,1 source,usableQuantity 'quantity',quantityUnit ,priceNegotiable,price ,priceUnit ,createdAt,updatedAt 
+		FROM fj_supply
+		WHERE customerId = #{customerId}
+		UNION ALL 	
+		SELECT id,itemId,infoTitle,2 source,quantity,unit 'quantityUnit',priceNegotiable,expectPrice 'price',expectPriceUnit 'priceUnit',createdAt,updatedAt 
+		FROM fj_purchase
+		WHERE customerId = #{customerId}
+		) tb LEFT JOIN fj_items i ON i.id = tb.itemId
+		ORDER BY tb.createdAt DESC
+		LIMIT #{startNum},#{endNum}
+	</select>
+	
+	<select id="getReleaseCount" parameterType="java.util.Map" resultType="java.lang.Integer">	
+	SELECT COUNT(*) FROM (
+		SELECT itemId,infoTitle,1 source,usableQuantity 'quantity',quantityUnit ,priceNegotiable,price ,priceUnit ,createdAt,updatedAt 
+		FROM fj_supply 
+		WHERE customerId = #{customerId}
+		 UNION ALL 	
+		SELECT itemId,infoTitle,2 source,quantity  ,unit 'quantityUnit',priceNegotiable,expectPrice 'price',expectPriceUnit 'priceUnit',createdAt,updatedAt 
+		FROM fj_purchase 
+		WHERE customerId = #{customerId}
+		) tb
+	</select>
+	
+	<select id="getFavorite" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Orders">	
+	SELECT 
+		f.id ,f.createdAt 'collectionDate',f.source,f.sourceId,
+		CASE f.source WHEN 1 THEN i1.name ELSE i2.name END 'metalName',
+		CASE f.source WHEN 1 THEN s.infoTitle ELSE p.infoTitle END 'infoTitle',
+		CASE f.source WHEN 1 THEN a1.name ELSE a2.name END 'goodsProvName',
+		CASE f.source WHEN 1 THEN s.usableQuantity ELSE p.quantity END 'quantity',
+		CASE f.source WHEN 1 THEN s.quantityUnit ELSE p.unit END 'quantityUnit',
+		CASE f.source WHEN 1 THEN s.priceNegotiable  ELSE p.priceNegotiable  END 'priceNegotiable',
+		CASE f.source WHEN 1 THEN s.price ELSE p.expectPrice END 'expectPrice',
+		CASE f.source WHEN 1 THEN s.priceUnit ELSE p.expectPriceUnit END 'expectPriceUnit',
+		CASE f.source WHEN 1 THEN s.expiryType ELSE p.expiryType END 'expiryType',
+		CASE f.source WHEN 1 THEN s.createdAt  ELSE p.createdAt  END 'createdAt' 
+		FROM fj_favorite f
+		LEFT JOIN fj_purchase p ON f.sourceId = p.id 
+		LEFT JOIN fj_supply s ON f.sourceId = s.id 
+		LEFT JOIN fj_items i1 ON s.itemId = i1.id
+		LEFT JOIN fj_items i2 ON p.itemId = i2.id
+		LEFT JOIN ch_areas a1 ON s.goodsProv = a1.id
+		LEFT JOIN ch_areas a2 ON p.goodsProv = a2.id
+		WHERE f.customerId = #{customerId}
+		order by f.id desc 
+		LIMIT #{startNum},#{endNum}
+	</select>
+	
+	<select id="getFavoriteCount" parameterType="java.util.Map" resultType="java.lang.Integer">	
+	SELECT COUNT(*) FROM fj_favorite WHERE customerId = #{customerId} 
+	</select>
+	
+	<select id="getCustomerDetail" resultType="com.smm.scrapMetal.domain.Customer" parameterType="java.lang.Integer">
+	SELECT c.createdAt ,c.createdBy ,u1.name 'createUser',pic ,u2.name 'picUser',a1.name 'provName',a2.name 'cityName',
+		c.nickName ,c.phone , c.scrapItemIds  ,c.NAME   ,c.address  ,c.companyName  ,c.entTypes  ,
+		c.categorybusiness  ,c.email 
+		FROM 
+		fj_customer c 
+		LEFT JOIN fj_users   u1 ON c.createdBy = u1.id  
+		LEFT JOIN fj_users   u2 ON c.pic = u2.id 
+		LEFT JOIN ch_areas   a1 ON c.prov = a1.id
+		LEFT JOIN ch_areas   a2 ON c.city = a2.id
+		WHERE c.id = #{customerId}
+	</select>
+
+	<update id="delCustomer" parameterType="java.lang.Integer">
+		UPDATE fj_customer SET infoStatus = 1 WHERE id = #{customerId}
+	</update>
+	
+	<select id="getItemName" resultType="java.lang.String" parameterType="java.util.Map">
+		SELECT NAME FROM fj_items WHERE id IN 
+  		<foreach collection="itemIds" index="index" item="itemId" open="(" separator="," close=")">
+   			#{itemId}
+  		</foreach>
+	</select>
+	
+	
+	<!-- 以下定时器sql -->
+	
+	<!-- 修改订单状态定时器 -->
+	<select id="getNotConfirmedOrders" resultType="com.smm.scrapMetal.domain.Orders">
+		SELECT id,source,quantity,sourceId,isBuyerConfirmed,isSellerConfirmed,updatedAt 
+		FROM fj_orders 
+		WHERE (isBuyerConfirmed = 0 OR isSellerConfirmed = 0) AND orderStatus = 0
+	</select>
+	
+	<update id="ConfirmedOrders" parameterType="java.util.Map">
+        UPDATE fj_orders SET orderStatus = 2 ,dealTime = SYSDATE() 
+  		WHERE id in
+  		<foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+   			#{id}
+  		</foreach>
+    </update>
+	
+	<update id="RevokeOrders" parameterType="java.util.Map">
+        UPDATE fj_orders SET orderStatus = 1  
+  		WHERE id in
+  		<foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+   			#{id}
+  		</foreach>
+    </update>
+    
+    <!-- 修改发布列表状态定时器 -->
+    
+    <select id="getAuditReleaseList" resultType="com.smm.scrapMetal.domain.Orders">
+		SELECT id,updatedAt,expiryType,1 'source' FROM fj_supply WHERE infoStatus IN (0,1,2)
+		UNION ALL 
+		SELECT id,updatedAt,expiryType,2 'source' FROM fj_purchase WHERE infoStatus IN (0,1,2)
+	</select>
+    
+    <update id="supplyLastInfoStatus" parameterType="java.util.Map">
+        UPDATE fj_supply SET lastInfoStatus = lastInfoStatus 
+  		WHERE id in
+  		<foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+   			#{id}
+  		</foreach>
+    </update>
+    
+    <update id="updateOrderBuyerTime" parameterType="java.util.Map">
+        UPDATE fj_orders SET isBuyerConfirmed = #{isBuyerConfirmed},buyerConfirmedTime = #{buyerConfirmedTime} 
+    </update>
+    <update id="updateOrderSellerTime" parameterType="java.util.Map">
+        UPDATE fj_orders SET isSellerConfirmed = #{isSellerConfirmed},sellerConfirmedTime = #{sellerConfirmedTime} 
+    </update>
+    
+    <update id="purchaseLastInfoStatus" parameterType="java.util.Map">
+        UPDATE fj_purchase SET lastInfoStatus = infoStatus 
+  		WHERE id in
+  		<foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+   			#{id}
+  		</foreach>
+    </update>
+    
+    <update id="supplyIsOverdue" parameterType="java.util.Map">
+        UPDATE fj_supply SET infoStatus = 3  
+  		WHERE id in
+  		<foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+   			#{id}
+  		</foreach>
+    </update>
+    
+    <update id="purchaseIsOverdue" parameterType="java.util.Map">
+        UPDATE fj_purchase SET infoStatus = 3 
+  		WHERE id in
+  		<foreach collection="ids" index="index" item="id" open="(" separator="," close=")">
+   			#{id}
+  		</foreach>
+    </update>
+    
+	<!-- 以下为接口sql -->
+	
+	<select id="myOrderList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Orders">
+	SELECT 
+		o.id,o.orderStatus,o.source,o.orderNo,o.sourceId, si.name 'imgPath',
+		CASE o.source WHEN 1 THEN s.infoTitle WHEN 2 THEN  p.infoTitle END  'infoTitle', o.infoTitle 'orderTitle', 
+		o.quantity, o.quantityUnit, o.goodsProv,a1.name 'goodsProvName',o.goodsCity,a2.name 'goodsCityName', 
+		o.buyerPhone, o.buyerContacter, o.buyerCompanyName, o.isBuyerConfirmed,o.buyerConfirmedTime,
+		o.sellerPhone, o.sellerContacter, o.sellerCompanyName, o.isSellerConfirmed,o.sellerConfirmedTime,
+		CASE o.source WHEN 3 THEN c3.address ELSE c1.address END  'buyerAddress',
+		CASE o.source WHEN 3 THEN c4.address ELSE c2.address END  'sellerAddress'
+		FROM fj_orders o 
+		LEFT JOIN fj_supply s ON o.sourceId=s.id
+		LEFT JOIN fj_purchase p ON o.sourceId=p.id
+		LEFT JOIN (SELECT * FROM fj_supply_images WHERE imgOrder = 0 OR imgOrder IS NULL) si ON s.id=si.supplyId
+		LEFT JOIN ch_areas a1 ON o.goodsProv=a1.id
+		LEFT JOIN ch_areas a2 ON o.goodsCity=a2.id
+		LEFT JOIN fj_customer c1 ON  o.buyerPhone=c1.phone
+		LEFT JOIN fj_customer c2 ON  o.sellerPhone=c2.phone
+		LEFT JOIN fj_customer c3 ON  c3.id=o.buyerId
+		LEFT JOIN fj_customer c4 ON  c4.id=o.sellerId
+		WHERE o.orderStatus = #{orderStatus} AND (o.buyerPhone = #{phone} OR o.sellerPhone = #{phone}) 
+		ORDER BY o.createdAt DESC
+	</select>
+	
+	<select id="getOrderStatusCount" parameterType="java.lang.String" resultType="com.smm.scrapMetal.domain.Orders">
+	SELECT SUM(tb.wait) 'wait',SUM(tb.noDeal) 'noDeal',SUM(tb.dealed) 'dealed' FROM (
+		SELECT orderStatus,
+		CASE orderStatus WHEN 0 THEN 1 ELSE 0 END 'wait',
+		CASE orderStatus WHEN 1 THEN 1 ELSE 0 END 'noDeal',
+		CASE orderStatus WHEN 2 THEN 1 ELSE 0 END 'dealed'
+		FROM fj_orders 
+		WHERE buyerPhone = #{phone} OR sellerPhone = #{phone}) tb
+	</select>
+	
+	<update id="submitOrder" parameterType="java.lang.String">
+	UPDATE fj_orders SET orderStatus = 2 ,dealTime = SYSDATE()  WHERE id = #{orderId}
+	</update>
+	
+	<update id="submitOrderUpdateSupply" parameterType="java.util.Map">
+	UPDATE fj_supply SET frozenQuantity = frozenQuantity - #{quantity} WHERE id = #{id}
+	</update>
+	
+	<update id="closeOrder" parameterType="java.lang.String">
+	UPDATE fj_orders SET orderStatus = 1 WHERE id = #{orderId}
+	</update>
+	
+	<update id="closeOrderUpdateSupply" parameterType="java.util.Map">
+	UPDATE fj_supply SET frozenQuantity = frozenQuantity - #{quantity} ,usableQuantity = usableQuantity + #{quantity} WHERE id = #{id}
+	</update>
+	
+	<select id="getOrderById" parameterType="java.lang.Integer" resultType="com.smm.scrapMetal.domain.Orders">
+	SELECT * FROM fj_orders WHERE id = #{id}
+	</select>
+	
+	<update id="sellerSubmitOrder" parameterType="java.lang.String">
+	UPDATE fj_orders SET isSellerConfirmed = 1 , sellerConfirmedTime = SYSDATE() WHERE id = #{orderId}
+	</update>
+	
+	<update id="buyerSubmitOrder" parameterType="java.lang.String">
+	UPDATE fj_orders SET isBuyerConfirmed = 1 , buyerConfirmedTime = SYSDATE() WHERE id = #{orderId}
+	</update>
+	
+	<update id="sellerCloseOrder" parameterType="java.lang.String">
+	UPDATE fj_orders SET isSellerConfirmed = 2 , sellerConfirmedTime = SYSDATE() WHERE id = #{orderId}
+	</update>
+	
+	<update id="buyerCloseOrder" parameterType="java.lang.String">
+	UPDATE fj_orders SET isBuyerConfirmed = 2 , buyerConfirmedTime = SYSDATE() WHERE id = #{orderId}
+	</update>
+	
+	<select id="myFavoriteList" resultType="com.smm.scrapMetal.domain.Orders" parameterType="java.lang.String">
+	SELECT 
+		f.id 'favoriteId',f.source,f.sourceId,f.createdAt 'collectionDate',
+		CASE f.source WHEN 1 THEN c1.weChatAvatar ELSE c2.weChatAvatar END 'weChatAvatar',
+		CASE f.source WHEN 1 THEN c1.nickName ELSE c2.nickName END 'nickName',
+		CASE f.source WHEN 1 THEN si.name ELSE NULL END ' imgPath',
+		CASE f.source WHEN 1 THEN s.infoTitle ELSE p.infoTitle END 'infoTitle',
+		CASE f.source WHEN 1 THEN a1.name ELSE a2.name END 'goodsProvName',
+		CASE f.source WHEN 1 THEN a3.name ELSE a4.name END 'goodsCityName',
+		CASE f.source WHEN 1 THEN s.usableQuantity ELSE p.quantity END 'quantity',
+		CASE f.source WHEN 1 THEN s.quantityUnit ELSE p.unit END 'quantityUnit',
+		CASE f.source WHEN 1 THEN s.priceNegotiable  ELSE p.priceNegotiable  END 'priceNegotiable',
+		CASE f.source WHEN 1 THEN s.price ELSE p.expectPrice END 'expectPrice',
+		CASE f.source WHEN 1 THEN s.priceUnit ELSE p.expectPriceUnit END 'expectPriceUnit' 
+		FROM fj_favorite f
+		LEFT JOIN fj_purchase p ON f.sourceId = p.id 
+		LEFT JOIN fj_supply s ON f.sourceId = s.id 
+		LEFT JOIN ch_areas a1 ON s.goodsProv = a1.id
+		LEFT JOIN ch_areas a2 ON p.goodsProv = a2.id
+		LEFT JOIN ch_areas a3 ON s.goodsCity = a3.id
+		LEFT JOIN ch_areas a4 ON p.goodsCity = a4.id
+		LEFT JOIN fj_customer c1 ON s.customerId = c1.id
+		LEFT JOIN fj_customer c2 ON p.customerId = c2.id
+		LEFT JOIN fj_customer c3 ON f.customerId = c3.id
+		LEFT JOIN (SELECT * FROM fj_supply_images WHERE imgOrder = 0 OR imgOrder IS NULL) si ON si.supplyId = s.id
+		WHERE c3.phone = #{phone} 
+		ORDER BY collectionDate DESC
+	</select>
+	
+	<select id="myReleaseList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Orders">
+	SELECT f.id ,1 'source',f.infoTitle,f.createdAt,f.updatedAt,f.updatedBy,f.auditedComment ,f.infoStatus
+		FROM fj_supply f,fj_customer c WHERE f.customerId = c.id
+		AND c.phone=#{phone} AND f.infoStatus != 4 
+		<if test="infoStatus!=-1">
+			AND ( f.infoStatus = #{infoStatus} 
+			<if test="infoStatus==1">
+				or f.infoStatus = 3
+			</if>
+			)
+		</if>
+		UNION ALL
+		SELECT p.id 'releaseId',2 'source',p.infoTitle,p.createdAt,p.updatedAt,p.updatedBy,p.auditedComment ,p.infoStatus
+		FROM fj_purchase p,fj_customer c WHERE p.customerId = c.id
+		AND c.phone=#{phone} AND p.infoStatus != 4 
+		<if test="infoStatus!=-1">
+			AND ( p.infoStatus = #{infoStatus} 
+			<if test="infoStatus==1">
+				or p.infoStatus = 3
+			</if>
+			)
+		</if>
+		ORDER BY updatedAt DESC
+	</select>
+	
+	<select id="getReleaseStatusCount" parameterType="java.lang.String" resultType="com.smm.scrapMetal.domain.Orders">
+	SELECT
+		SUM(	CASE tb.infoStatus WHEN 1 THEN 1 WHEN 3 THEN 1 ELSE 0 END )'published',
+		SUM(	CASE tb.infoStatus WHEN 0 THEN 1 ELSE 0 END )'auditing',
+		SUM(	CASE tb.infoStatus WHEN 2 THEN 1 ELSE 0 END )'notPass'
+		FROM 
+		(
+		SELECT f.id 'releaseId',1 'source',f.infoTitle,f.createdAt,f.auditedComment ,f.infoStatus
+		FROM fj_supply f,fj_customer c WHERE f.customerId = c.id
+		AND c.phone=#{phone} AND f.infoStatus != 4
+		UNION ALL
+		SELECT p.id 'releaseId',2 'source',p.infoTitle,p.createdAt,p.auditedComment ,p.infoStatus
+		FROM fj_purchase p,fj_customer c WHERE p.customerId = c.id
+		AND c.phone=#{phone} AND p.infoStatus != 4 
+		) tb
+	</select>
+	
+	<update id="restorePurchaseInfostatus" parameterType="java.util.Map">
+	UPDATE fj_purchase SET infoStatus = lastInfoStatus 
+		WHERE 
+		customerId = (SELECT id FROM fj_customer WHERE phone = #{phone}) 
+		AND infoStatus = 3 
+		<if test="id!=-1">
+		AND id = #{id}
+		</if>
+	</update>
+	
+	<update id="restoreSupplyInfostatus" parameterType="java.util.Map">
+	UPDATE fj_supply SET infoStatus = lastInfoStatus  
+		WHERE 
+		customerId = (SELECT id FROM fj_customer WHERE phone = #{phone}) 
+		AND infoStatus = 3 
+		<if test="id!=-1">
+		AND id = #{id}
+		</if>
+	</update>
+	
+	<update id="updatePurchase" parameterType="java.util.Map">
+	UPDATE fj_purchase SET updatedAt = SYSDATE() 
+		WHERE 
+		customerId = (SELECT id FROM fj_customer WHERE phone = #{phone}) 
+		AND infoStatus IN ( 1 , 3 ) 
+		<if test="id!=-1">
+		AND id = #{id}
+		</if>
+	</update>
+	
+	<update id="updateSupply" parameterType="java.util.Map">
+	UPDATE fj_supply SET updatedAt = SYSDATE() 
+		WHERE 
+		customerId = (SELECT id FROM fj_customer WHERE phone = #{phone}) 
+		AND infoStatus IN ( 1 , 3 ) 
+		<if test="id!=-1">
+		AND id = #{id}
+		</if>
+	</update>
+	
+	<update id="deletePurchase" parameterType="java.lang.Integer">
+	UPDATE fj_purchase SET infoStatus = 4
+		WHERE id = #{id}
+	</update>
+	
+	<update id="deleteSupply" parameterType="java.lang.Integer">
+	UPDATE fj_supply SET infoStatus = 4
+		WHERE id = #{id}
+	</update>
+	
+	<delete id="deleteFavorite" parameterType="java.util.Map">
+	DELETE FROM cuohe.fj_favorite 
+	WHERE
+	source = #{source} AND sourceId = #{id};
+	</delete>
+	
+	
+	<select id="queryOrderDetail" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.OrderDetail">
+			SELECT * FROM (
+				SELECT mg.name imageName,buyerConfirmedTime,sellerConfirmedTime,ct1.address 'sellerAddress',ct2.address 'buyerAddress',o.updatedAt,o.id,o.orderNo,i.name AS 'itemName',s.itemId,s.infoTitle,o.price,o.quantity,o.quantityUnit,o.priceUnit,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'goodscname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name customerName,dl.name deliveryName ,o.source,o.sourceId,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName,o.buyerId,o.sellerId,o.isBuyerConfirmed,o.isSellerConfirmed 
+				 FROM fj_orders o 
+				 LEFT JOIN fj_supply s ON o.sourceId=s.id 
+				 LEFT JOIN fj_items i ON s.itemId=i.id 
+				 LEFT JOIN ch_areas p ON p.id=o.goodsProv 
+				 LEFT JOIN ch_areas c ON c.id=o.goodsCity 
+				 LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain 
+				 LEFT JOIN  fj_users u ON u.id=o.createdBy 
+				 LEFT JOIN fj_delivery dl ON dl.id=o.delivery 
+				 LEFT JOIN  fj_customer ct1 ON ct1.id=o.sellerId
+				 LEFT JOIN  fj_customer ct2 ON ct2.id=o.buyerId 
+				 LEFT JOIN  (select * from fj_supply_images  where  imgOrder=0 order by imgOrder) mg on s.id=mg.supplyId 
+				 WHERE o.source=1
+			UNION ALL
+				SELECT "" imageName, buyerConfirmedTime,sellerConfirmedTime,ct1.address 'sellerAddress',ct2.address 'buyerAddress',o.updatedAt,o.id,o.orderNo,i.name AS 'itemName',pu.itemId,pu.infoTitle,o.price,o.quantity,o.quantityUnit,o.priceUnit,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'goodscname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name customerName,dl.name deliveryName ,o.source,o.sourceId,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName,o.buyerId,o.sellerId,o.isBuyerConfirmed,o.isSellerConfirmed 
+				 FROM fj_orders o 
+				 LEFT JOIN fj_purchase pu ON o.sourceId=pu.id 
+				 LEFT JOIN fj_items i ON pu.itemId=i.id 
+				 LEFT JOIN ch_areas p ON p.id=o.goodsProv 
+				 LEFT JOIN ch_areas c ON c.id=o.goodsCity 
+				 LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain 
+				 LEFT JOIN  fj_users u ON u.id=o.createdBy 
+				 LEFT JOIN fj_delivery dl ON dl.id=o.delivery 
+				 LEFT JOIN  fj_customer ct1 ON ct1.id=o.sellerId
+				 LEFT JOIN  fj_customer ct2 ON ct2.id=o.buyerId 
+				 WHERE o.source=2
+			UNION ALL
+				SELECT "" imageName, buyerConfirmedTime,sellerConfirmedTime,ct1.address 'sellerAddress',ct2.address 'buyerAddress',o.updatedAt,o.id,o.orderNo,''AS 'itemName',''AS 'itemId',o.infoTitle,o.price,o.quantity,o.quantityUnit,o.priceUnit,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'goodscname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name customerName,dl.name deliveryName ,o.source,o.sourceId,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName,o.buyerId,o.sellerId,o.isBuyerConfirmed,o.isSellerConfirmed 
+				 FROM fj_orders o  
+				 LEFT JOIN ch_areas p ON p.id=o.goodsProv 
+				 LEFT JOIN ch_areas c ON c.id=o.goodsCity 
+				 LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain 
+				 LEFT JOIN  fj_users u ON u.id=o.createdBy 
+				 LEFT JOIN fj_delivery dl ON dl.id=o.delivery 
+				 LEFT JOIN  fj_customer ct1 ON ct1.id=o.sellerId 
+				 LEFT JOIN  fj_customer ct2 ON ct2.id=o.buyerId  
+				 WHERE o.source=3
+		 )t 
+		 WHERE 1=1 and orderNo=#{orderNo} 
+	
+	</select>
+	
+</mapper>

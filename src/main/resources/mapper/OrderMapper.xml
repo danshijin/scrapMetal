@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.smm.scrapMetal.dao.OrderDao" >
+	<select id="query"  parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Order">
+		SELECT * FROM (
+				SELECT o.id,o.orderNo,i.name AS 'itemName',s.itemId,s.infoTitle,o.price,o.quantity,o.quantityUnit,o.priceUnit,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'pcname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name,o.source,o.sourceId,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName,o.buyerId,o.sellerId,o.isBuyerConfirmed,o.isSellerConfirmed, o.buyerConfirmedTime, o.sellerConfirmedTime 
+				 FROM fj_orders o LEFT JOIN fj_supply s ON o.sourceId=s.id LEFT JOIN fj_items i ON s.itemId=i.id LEFT JOIN ch_areas p ON p.id=o.goodsProv LEFT JOIN ch_areas c ON c.id=o.goodsCity LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain LEFT JOIN  fj_users u ON u.id=o.createdBy WHERE o.source=1
+			UNION ALL
+				SELECT o.id,o.orderNo,i.name AS 'itemName',pu.itemId,pu.infoTitle,o.price,o.quantity,o.quantityUnit,o.priceUnit,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'pcname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name,o.source,o.sourceId,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName,o.buyerId,o.sellerId,o.isBuyerConfirmed,o.isSellerConfirmed, o.buyerConfirmedTime, o.sellerConfirmedTime 
+				 FROM fj_orders o LEFT JOIN fj_purchase pu ON o.sourceId=pu.id LEFT JOIN fj_items i ON pu.itemId=i.id LEFT JOIN ch_areas p ON p.id=o.goodsProv LEFT JOIN ch_areas c ON c.id=o.goodsCity LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain LEFT JOIN  fj_users u ON u.id=o.createdBy WHERE o.source=2
+			UNION ALL
+				SELECT o.id,o.orderNo,''AS 'itemName',''AS 'itemId',o.infoTitle,o.price,o.quantity,o.quantityUnit,o.priceUnit,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'pcname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name,o.source,o.sourceId,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName,o.buyerId,o.sellerId,o.isBuyerConfirmed,o.isSellerConfirmed, o.buyerConfirmedTime, o.sellerConfirmedTime 
+				 FROM fj_orders o  LEFT JOIN ch_areas p ON p.id=o.goodsProv LEFT JOIN ch_areas c ON c.id=o.goodsCity LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain LEFT JOIN  fj_users u ON u.id=o.createdBy WHERE o.source=3
+		 )t 
+		 where 1=1
+		 <if test="orderStatus!=-1"><!-- 视图状态 -->
+		 	and t.orderStatus = #{orderStatus}
+		 </if>
+		 <if test="attribute==1 and content!=null and content!='' "><!-- 信息标题 -->
+		 	and t.infoTitle like '%${content}%'
+		 </if>
+		 <if test="attribute==2 and content!=null and content!='' "><!-- 手机 -->
+		 	and (t.sellerPhone like '%${content}%' or t.buyerPhone like '%${content}%')
+		 </if>
+		 <if test="attribute==3 and content!=null and content!='' "><!-- 订单编号 -->
+		 	and t.orderNo like '%${content}%'
+		 </if>
+		 <if test="attribute==4 and content!=null and content!='' "><!-- 姓名 -->
+		 	and (t.buyerContacter like '%${content}%' or t.sellerContacter like '%${content}%')
+		 </if>
+		 <if test="attribute==5 and content!=null and content!='' "><!-- 公司名 -->
+		 	and (t.buyerCompanyName like '%${content}%' or t.sellerCompanyName like '%${content}%')
+		 </if>
+		 <if test="attribute==6 and content!=null and content!='' "><!-- 负责人 -->
+		 	and t.name like '%${content}%' 
+		 </if>
+		 <if test="goodsProv!=null and goodsProv!='-1'"><!-- 省 -->
+			and t.goodsProv=${goodsProv}
+		 </if>
+		 <if test="goodsCity!=null and  goodsCity!='null' and goodsCity!='-1'"><!-- 市-->
+			and t.goodsCity=${goodsCity}
+		 </if>
+		 <if test="dates==1 and statDate!=null and statDate!='' "><!-- 下单时间-->
+			and t.createdAt &gt; #{statDate}
+		 </if>
+		 <if test="dates==1 and endDate!=null and endDate!='' "><!-- 下单时间-->
+			and t.createdAt &lt; #{endDate}
+		 </if>
+		 <if test="dates==2 and statDate!=null and statDate!='' "><!-- 成交时间-->
+			and t.dealTime &gt; #{statDate}
+		 </if>
+		 <if test="dates==2 and endDate!=null and endDate!='' "><!-- 成交时间-->
+			and t.dealTime &lt; #{endDate}
+		 </if>
+		 <if test="itemId!=null and itemId!='-1' "><!-- 分类-->
+			and t.itemId = #{itemId}
+		 </if>
+			order by t.id desc
+		<if test="startNum!=null and endNum!=null">
+			LIMIT ${startNum},${endNum}
+		</if>
+	</select>
+	
+	<update id="updateOrderStatus" parameterType="java.util.Map" >
+		UPDATE fj_orders 
+			SET orderStatus =#{orderStatus},
+				 <if test="orderStatus==2">
+				 	dealTime=now(),
+				 </if>
+				   updatedAt=now()
+			WHERE id=#{orderId}
+	</update>
+	
+	<select id="queryOrderInfo" parameterType="java.lang.Integer" resultType="com.smm.scrapMetal.domain.Order">
+		SELECT
+		  o.orderNo,
+		  o.sellerPhone,
+		  o.sellerContacter,
+		  o.sellerCompanyName,
+		  o.buyerPhone,
+		  o.buyerContacter,
+		  o.buyerCompanyName,
+		  o.price,
+		  o.quantity,
+		  o.quantityUnit,
+		  o.priceUnit,
+		  CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'pcname',
+		  pe.name AS 'strPriceExplain',
+		  de.name AS 'deliveryName',
+		  buy.address AS 'buyAddress',
+		  sell.address AS 'sellAddress',
+		  (CASE WHEN o.source=1 THEN (SELECT s.infotitle FROM fj_supply s WHERE s.id=o.sourceId)
+			WHEN o.source=2 THEN (SELECT p.infotitle FROM fj_purchase p WHERE p.id=o.sourceId)
+			WHEN o.source=3 THEN o.infoTitle
+		   END) AS 'infoTitle',
+		   o.source,
+		   o.sourceId
+		  
+		FROM fj_orders o
+		  LEFT JOIN ch_areas p 
+		    ON p.id=o.goodsProv 
+		  LEFT JOIN ch_areas c 
+		   ON c.id=o.goodsCity 
+		  LEFT JOIN fj_priceExplain pe 
+		   ON pe.id=o.priceExplain
+		  LEFT JOIN fj_delivery de
+		   ON de.id=o.delivery
+		  LEFT JOIN fj_customer buy
+		   ON buy.id=o.buyerId
+		  LEFT JOIN fj_customer sell
+		   ON sell.id=o.sellerId
+		   where o.id = #{id}
+	</select>
+	
+	<select id="purchaseToAddOrderInfoById" parameterType="java.lang.Integer" resultType="com.smm.scrapMetal.domain.Order">
+		SELECT
+				  p.infoTitle,
+				  p.goodsProv,
+				  p.goodsCity,
+				  p.quantity,
+				  p.unit AS 'quantityUnit',
+				  p.expectPrice AS 'price',
+				  p.expectPriceUnit AS 'priceUnit',
+				  c.phone AS 'buyerPhone',
+				  c.name AS 'buyerContacter',
+				  c.companyName AS 'buyerCompanyName',
+				  p.priceExplain,
+				  c.id AS 'buyerId'
+			FROM fj_purchase p
+			  LEFT JOIN fj_customer c
+			    ON p.customerId = c.id
+			   where p.id = #{id}
+	</select>
+	
+	<select id="supplyToAddOrderInfoById" parameterType="java.lang.Integer" resultType="com.smm.scrapMetal.domain.Order">
+		SELECT
+			  s.infoTitle,
+			  s.goodsProv,
+			  s.goodsCity,
+			  s.usableQuantity AS 'quantity',
+			  s.quantityUnit,
+			  s.price,
+			  s.priceUnit,
+			  c.phone AS 'sellerPhone',
+			  c.name AS 'sellerContacter',
+			  c.companyName AS 'sellerCompanyName',
+			  s.priceExplain,
+			  s.delivery,
+			  c.id AS 'sellerId'
+		FROM fj_supply s
+		  LEFT JOIN fj_customer c
+		    ON s.customerId = c.id
+		    where  s.id=#{id}
+	</select>
+	
+	<select id="purCustomerToAddOrderInfoById" parameterType="java.lang.Integer" resultType="com.smm.scrapMetal.domain.Order">
+		SELECT id AS 'buyerId',phone AS 'buyerPhone',`name` AS 'buyerContacter',companyName AS 'buyerCompanyName' FROM fj_customer WHERE id=#{id}
+	</select>
+	
+	<select id="SupCustomerToAddOrderInfoById" parameterType="java.lang.Integer" resultType="com.smm.scrapMetal.domain.Order">
+		SELECT id AS 'sellerId',phone AS 'sellerPhone',`name` AS 'sellerContacter',companyName AS 'sellerCompanyName' FROM fj_customer WHERE id=#{id}
+	</select>
+	
+	<insert id="addOrder" parameterType="com.smm.scrapMetal.domain.Order" useGeneratedKeys="true" keyProperty="id">
+			INSERT INTO fj_orders 
+				(
+					source, 
+					sourceId, 
+					goodsProv, 
+					goodsCity, 
+					quantity, 
+					quantityUnit, 
+					price, 
+					priceUnit, 
+					priceExplain, 
+					delivery, 
+					buyerPhone, 
+					buyerContacter, 
+					buyerCompanyName, 
+					sellerPhone, 
+					sellerContacter, 
+					sellerCompanyName, 
+					orderStatus, 
+					createdAt, 
+					createdBy, 
+					updatedBy, 
+					dealTime, 
+					orderNo, 
+					buyerId, 
+					sellerId, 
+					infoTitle
+				)
+				VALUES
+				(
+					#{source}, 
+					#{sourceId}, 
+					#{goodsProv}, 
+					#{goodsCity}, 
+					#{quantity}, 
+					#{quantityUnit}, 
+					#{price}, 
+					#{priceUnit}, 
+					#{priceExplain}, 
+					#{delivery}, 
+					#{buyerPhone}, 
+					#{buyerContacter}, 
+					#{buyerCompanyName}, 
+					#{sellerPhone}, 
+					#{sellerContacter}, 
+					#{sellerCompanyName}, 
+					0, 
+					#{createdAt}, 
+					#{createdBy}, 
+					#{updatedBy}, 
+					#{dealTime}, 
+					#{orderNo}, 
+					#{buyerId}, 
+					#{sellerId}, 
+					#{infoTitle}
+				)
+	</insert>
+	
+	<update id="insOrderNoById" parameterType="com.smm.scrapMetal.domain.Order" >
+		UPDATE fj_orders SET orderNo=#{orderNo}  WHERE id = #{id}
+	</update>
+	
+	<select id="ExporOrderList"  parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Order">
+		SELECT * FROM (
+				SELECT o.id,o.orderNo,i.name AS 'itemName',s.itemId,s.infoTitle,o.price,CONCAT(o.quantity,' ',CASE WHEN o.quantityUnit=0 THEN '吨' ELSE '' END) AS quantityStr,CONCAT(o.price*o.quantity,CASE WHEN o.priceUnit=0 THEN '元' ELSE '美元' END) AS sumPrice,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'pcname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name,o.source,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName
+				 FROM fj_orders o LEFT JOIN fj_supply s ON o.sourceId=s.id LEFT JOIN fj_items i ON s.itemId=i.id LEFT JOIN ch_areas p ON p.id=o.goodsProv LEFT JOIN ch_areas c ON c.id=o.goodsCity LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain LEFT JOIN  fj_users u ON u.id=o.createdBy WHERE o.source=1
+			UNION ALL
+				SELECT o.id,o.orderNo,i.name AS 'itemName',pu.itemId,pu.infoTitle,o.price,CONCAT(o.quantity,' ',CASE WHEN o.quantityUnit=0 THEN '吨' ELSE '' END) AS quantityStr,CONCAT(o.price*o.quantity,CASE WHEN o.priceUnit=0 THEN '元' ELSE '美元' END) AS sumPrice,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'pcname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name,o.source,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName
+				 FROM fj_orders o LEFT JOIN fj_purchase pu ON o.sourceId=pu.id LEFT JOIN fj_items i ON pu.itemId=i.id LEFT JOIN ch_areas p ON p.id=o.goodsProv LEFT JOIN ch_areas c ON c.id=o.goodsCity LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain LEFT JOIN  fj_users u ON u.id=o.createdBy WHERE o.source=2
+			UNION ALL
+				SELECT o.id,o.orderNo,''AS 'itemName',''AS 'itemId',o.infoTitle,o.price,CONCAT(o.quantity,' ',CASE WHEN o.quantityUnit=0 THEN '吨' ELSE '' END) AS quantityStr,CONCAT(o.price*o.quantity,CASE WHEN o.priceUnit=0 THEN '元' ELSE '美元' END) AS sumPrice,CONCAT(p.name,' ',CASE WHEN c.name IS NULL THEN '' ELSE c.name END) AS 'pcname',o.goodsProv,o.goodsCity,pe.name AS 'strPriceExplain',o.sellerPhone,o.buyerPhone,o.createdAt,o.dealTime,u.name,o.source,o.orderStatus,o.buyerContacter,o.buyerCompanyName,o.sellerContacter,o.sellerCompanyName
+				 FROM fj_orders o  LEFT JOIN ch_areas p ON p.id=o.goodsProv LEFT JOIN ch_areas c ON c.id=o.goodsCity LEFT JOIN fj_priceExplain pe ON pe.id=o.priceExplain LEFT JOIN  fj_users u ON u.id=o.createdBy WHERE o.source=3
+		 )t 
+		 where 1=1
+		 <if test="orderStatus!=-1"><!-- 视图状态 -->
+		 	and t.orderStatus = #{orderStatus}
+		 </if>
+		 <if test="attribute==1 and content!=null and content!='' "><!-- 信息标题 -->
+		 	and t.infoTitle like '%${content}%'
+		 </if>
+		 <if test="attribute==2 and content!=null and content!='' "><!-- 手机 -->
+		 	and (t.sellerPhone like '%${content}%' or t.buyerPhone like '%${content}%')
+		 </if>
+		 <if test="attribute==3 and content!=null and content!='' "><!-- 订单编号 -->
+		 	and t.orderNo like '%${content}%'
+		 </if>
+		 <if test="attribute==4 and content!=null and content!='' "><!-- 姓名 -->
+		 	and (t.buyerContacter like '%${content}%' or t.sellerContacter like '%${content}%')
+		 </if>
+		 <if test="attribute==5 and content!=null and content!='' "><!-- 公司名 -->
+		 	and (t.buyerCompanyName like '%${content}%' or t.sellerCompanyName like '%${content}%')
+		 </if>
+		 <if test="attribute==6 and content!=null and content!='' "><!-- 负责人 -->
+		 	and t.name like '%${content}%' 
+		 </if>
+		 <if test="goodsProv!=null and goodsProv!='-1'"><!-- 省 -->
+			and t.goodsProv=${goodsProv}
+		 </if>
+		 <if test="goodsCity!=null and  goodsCity!='null' and goodsCity!='-1'"><!-- 市-->
+			and t.goodsCity=${goodsCity}
+		 </if>
+		 <if test="dates==1 and statDate!=null and statDate!='' "><!-- 下单时间-->
+			and t.createdAt &gt; #{statDate}
+		 </if>
+		 <if test="dates==1 and endDate!=null and endDate!='' "><!-- 下单时间-->
+			and t.createdAt &lt; #{endDate}
+		 </if>
+		 <if test="dates==2 and statDate!=null and statDate!='' "><!-- 成交时间-->
+			and t.dealTime &gt; #{statDate}
+		 </if>
+		 <if test="dates==2 and endDate!=null and endDate!='' "><!-- 成交时间-->
+			and t.dealTime &lt; #{endDate}
+		 </if>
+		 <if test="itemId!=null and itemId!='-1' "><!-- 分类-->
+			and t.itemId = #{itemId}
+		 </if>
+			order by t.id desc
+	</select>
+	
+	<update id="updateFrozenQuantity" parameterType="com.smm.scrapMetal.domain.Supply">
+		UPDATE fj_supply
+			 SET frozenQuantity=frozenQuantity+#{frozenQuantity},
+			     usableQuantity=usableQuantity-#{frozenQuantity}
+			 WHERE id =#{id}
+	</update>
+	
+	<update id="updateFrozenQuantityByOrderId" parameterType="java.util.Map">
+		UPDATE fj_supply s,fj_orders o 
+			SET s.frozenQuantity = s.frozenQuantity - o.quantity
+			<if test="orderStatus==1  or  orderStatus==3">
+			  ,s.usableQuantity = s.usableQuantity + o.quantity
+			 </if>  
+			WHERE o.id =#{orderId} 
+			    AND o.source = 1
+			    AND o.sourceId = s.id
+	</update>
+</mapper>

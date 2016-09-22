@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.smm.scrapMetal.dao.IChatRecordsDao">
+  <resultMap id="BaseResultMap" type="com.smm.scrapMetal.domain.ChatRecords">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="chatId" jdbcType="INTEGER" property="chatId" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="subType" jdbcType="INTEGER" property="subType" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="isRead" jdbcType="INTEGER" property="isRead" />
+    <result column="chatFromType" jdbcType="VARCHAR" property="chatFromType" />
+    <result column="customerId" jdbcType="INTEGER" property="customerId" />
+    <result column="employeeId" jdbcType="INTEGER" property="employeeId" />
+    <result column="createdAt" jdbcType="TIMESTAMP" property="createdAt" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, chatId, type, subType, content, isRead, chatFromType, customerId, employeeId, 
+    createdAt
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from fj_chatRecords
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from fj_chatRecords
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.smm.scrapMetal.domain.ChatRecords">
+    insert into fj_chatRecords (id, chatId, type, 
+      subType, content, isRead, 
+      chatFromType, customerId, employeeId, 
+      createdAt)
+    values (#{id,jdbcType=INTEGER}, #{chatId,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, 
+      #{subType,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, #{isRead,jdbcType=INTEGER}, 
+      #{chatFromType,jdbcType=VARCHAR}, #{customerId,jdbcType=INTEGER}, #{employeeId,jdbcType=INTEGER}, 
+      #{createdAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.smm.scrapMetal.domain.ChatRecords">
+    insert into fj_chatRecords
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="chatId != null">
+        chatId,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="subType != null">
+        subType,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="isRead != null">
+        isRead,
+      </if>
+      <if test="chatFromType != null">
+        chatFromType,
+      </if>
+      <if test="customerId != null">
+        customerId,
+      </if>
+      <if test="employeeId != null">
+        employeeId,
+      </if>
+      <if test="createdAt != null">
+        createdAt,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="chatId != null">
+        #{chatId,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="subType != null">
+        #{subType,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="isRead != null">
+        #{isRead,jdbcType=INTEGER},
+      </if>
+      <if test="chatFromType != null">
+        #{chatFromType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null">
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="employeeId != null">
+        #{employeeId,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null">
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.smm.scrapMetal.domain.ChatRecords">
+    update fj_chatRecords
+    <set>
+      <if test="chatId != null">
+        chatId = #{chatId,jdbcType=INTEGER},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="subType != null">
+        subType = #{subType,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="isRead != null">
+        isRead = #{isRead,jdbcType=INTEGER},
+      </if>
+      <if test="chatFromType != null">
+        chatFromType = #{chatFromType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerId != null">
+        customerId = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="employeeId != null">
+        employeeId = #{employeeId,jdbcType=INTEGER},
+      </if>
+      <if test="createdAt != null">
+        createdAt = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.smm.scrapMetal.domain.ChatRecords">
+    update fj_chatRecords
+    set chatId = #{chatId,jdbcType=INTEGER},
+      type = #{type,jdbcType=INTEGER},
+      subType = #{subType,jdbcType=INTEGER},
+      content = #{content,jdbcType=VARCHAR},
+      isRead = #{isRead,jdbcType=INTEGER},
+      chatFromType = #{chatFromType,jdbcType=VARCHAR},
+      customerId = #{customerId,jdbcType=INTEGER},
+      employeeId = #{employeeId,jdbcType=INTEGER},
+      createdAt = #{createdAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getLatestMsgByCustomerId" resultType="com.smm.scrapMetal.domain.ChatRecords" parameterType="int">
+  	select type, subType, content, chatFromType, createdAt from fj_chatRecords where customerId = #{customerId} and ((type =0 and (subType = 0 or subType = 2)) or (type = 1 and subType = 3) or (type = 2 and subType = 0)) order by id desc limit 0, 10;
+  </select>
+  <select id="getHistoryMsgForCustomer" resultType="com.smm.scrapMetal.domain.ChatRecords" parameterType="com.smm.scrapMetal.dto.ChatRecordsParamsDto">
+  	select type, subType, content, chatFromType, createdAt from fj_chatRecords where chatId = #{chatId} and ((type =0 and (subType = 0 or subType = 2)) or (type=1 and subType =3)) and createdAt &lt; #{lastestTime} order by id desc limit 0, #{len};
+  </select>
+  <select id="getHistoryMsgForEmployee" resultType="com.smm.scrapMetal.domain.ChatRecords" parameterType="com.smm.scrapMetal.dto.ChatRecordsParamsDto">
+  	select type, subType, content, chatFromType, createdAt from fj_chatRecords where customerId = #{customerId} and ((type =0 and (subType = 0 or subType = 2))  or (type = 1 and subType = 3) or (type = 2 and subType = 0)) and createdAt &lt; #{lastestTime} order by id desc limit 0, #{len};
+  </select>
+  <select id="countIsNotReadGroupByChatId" resultType="com.smm.scrapMetal.dto.ChatRemindDto">
+  	SELECT chatId, COUNT(chatId) num FROM fj_chatRecords WHERE isRead = 0 and chatFromType = 'C' GROUP BY chatId;
+  </select>
+  <update id="setIsReadByChatId" parameterType="int"> 
+  	update fj_chatRecords set isRead = 1 where chatId = #{chatId};
+  </update>
+  <update id="setIsReadByCustomerId" parameterType="int"> 
+  	update fj_chatRecords set isRead = 1 where customerId = #{customerId};
+  </update>
+  <select id="getNotReadMsgNumByCustomerId" parameterType="int" resultType="int">
+  	select count(1) from fj_chatRecords where customerId = #{customerId} and isRead = 0 and chatFromType = 'U';
+  </select>
+  
+</mapper>

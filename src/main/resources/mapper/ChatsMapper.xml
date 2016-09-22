@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.smm.scrapMetal.dao.IChatsDao" >
+  <resultMap id="BaseResultMap" type="com.smm.scrapMetal.domain.Chats" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="customerId" property="customerId" jdbcType="INTEGER" />
+    <result column="employeeId" property="employeeId" jdbcType="INTEGER" />
+    <result column="source" property="source" jdbcType="INTEGER" />
+    <result column="sourceId" property="sourceId" jdbcType="INTEGER" />
+    <result column="infoTitle" property="infoTitle" jdbcType="VARCHAR" />
+    <result column="titleMsg" property="titleMsg" jdbcType="VARCHAR" />
+    <result column="isDel" property="isDel" jdbcType="INTEGER" />
+    <result column="createdAt" property="createdAt" jdbcType="TIMESTAMP" />
+    <result column="updatedAt" property="updatedAt" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <resultMap id="ListViewResultMap" type="com.smm.scrapMetal.dto.ChatsListView" extends="BaseResultMap" >
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="nickName" property="nickName" jdbcType="VARCHAR" />
+    <result column="notReadNum" property="notReadNum" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, customerId, employeeId, source, sourceId, infoTitle, titleMsg, isDel, createdAt, updatedAt
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from fj_chats
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from fj_chats
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.smm.scrapMetal.domain.Chats" >
+    insert into fj_chats (id, customerId, employeeId, 
+      source, sourceId, infoTitle, titleMsg, isDel, 
+      createdAt, updatedAt)
+    values (#{id,jdbcType=INTEGER}, #{customerId,jdbcType=INTEGER}, #{employeeId,jdbcType=INTEGER}, 
+      #{source,jdbcType=INTEGER}, #{sourceId,jdbcType=INTEGER}, #{infoTitle,jdbcType=VARCHAR}, #{titleMsg,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, 
+      #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.smm.scrapMetal.domain.Chats" >
+    insert into fj_chats
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="customerId != null" >
+        customerId,
+      </if>
+      <if test="employeeId != null" >
+        employeeId,
+      </if>
+      <if test="source != null" >
+        source,
+      </if>
+      <if test="sourceId != null" >
+        sourceId,
+      </if>
+      <if test="infoTitle != null" >
+        infoTitle,
+      </if>
+      <if test="titleMsg != null" >
+        titleMsg,
+      </if>
+      <if test="isDel != null" >
+        isDel,
+      </if>
+      <if test="createdAt != null" >
+        createdAt,
+      </if>
+      <if test="updatedAt != null" >
+        updatedAt,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="customerId != null" >
+        #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="employeeId != null" >
+        #{employeeId,jdbcType=INTEGER},
+      </if>
+      <if test="source != null" >
+        #{source,jdbcType=INTEGER},
+      </if>
+      <if test="sourceId != null" >
+        #{sourceId,jdbcType=INTEGER},
+      </if>
+      <if test="infoTitle != null" >
+        #{infoTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="titleMsg != null" >
+        #{titleMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.smm.scrapMetal.domain.Chats" >
+    update fj_chats
+    <set >
+      <if test="customerId != null" >
+        customerId = #{customerId,jdbcType=INTEGER},
+      </if>
+      <if test="employeeId != null" >
+        employeeId = #{employeeId,jdbcType=INTEGER},
+      </if>
+      <if test="source != null" >
+        source = #{source,jdbcType=INTEGER},
+      </if>
+      <if test="sourceId != null" >
+        sourceId = #{sourceId,jdbcType=INTEGER},
+      </if>
+      <if test="infoTitle != null" >
+        infoTitle = #{infoTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="titleMsg != null" >
+        titleMsg = #{titleMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        isDel = #{isDel,jdbcType=VARCHAR},
+      </if>
+      <if test="createdAt != null" >
+        createdAt = #{createdAt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedAt != null" >
+        updatedAt = #{updatedAt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.smm.scrapMetal.domain.Chats" >
+    update fj_chats
+    set customerId = #{customerId,jdbcType=INTEGER},
+      employeeId = #{employeeId,jdbcType=INTEGER},
+      source = #{source,jdbcType=INTEGER},
+      sourceId = #{sourceId,jdbcType=INTEGER},
+      infoTitle = #{infoTitle,jdbcType=VARCHAR},
+      titleMsg = #{titleMsg,jdbcType=VARCHAR},
+      createdAt = #{createdAt,jdbcType=TIMESTAMP},
+      updatedAt = #{updatedAt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getList" resultMap="ListViewResultMap" parameterType="int" >
+    select 
+    ch.id, ch.customerId, ch.titleMsg,
+	(SELECT COUNT(1) FROM fj_chatRecords WHERE chatId = ch.id AND isRead = 0 and chatFromType = 'C') notReadNum,
+	ch.createdAt, ch.updatedAt, cu.name, cu.nickName
+    from fj_chats ch
+    LEFT JOIN fj_customer cu ON ch.customerId = cu.id
+    where ch.isDel = 0
+    order by updatedAt desc
+    limit #{start}, #{len};
+  </select>
+  <select id="countAll" resultType="int">
+  	select count(1) from fj_chats where isDel = 0;
+  </select>
+  <select id="getChatIdByCustomerIdSourceAndSourceId" parameterType="com.smm.scrapMetal.domain.Chats" resultType="java.lang.Integer">
+  	select id from fj_chats where customerId = #{customerId} and source = #{source} and sourceId = #{sourceId};
+  </select>
+  <select id="getCustomerInfoByChatId" resultType="com.smm.scrapMetal.domain.Customer" parameterType="int">
+  	select cu.id, cu.name, cu.nickName, cu.openId, cu.companyName, cu.weChatAvatar from fj_customer cu 
+  	left join fj_chats ch on cu.id = ch.customerId where ch.id = #{chatId};
+  </select>
+  <select id="selectCustomerIdByOpenId" parameterType="java.lang.String" resultType="java.lang.Integer">
+	select id from fj_customer where openId = #{openId};
+  </select>
+  <select id="countCustomerByOpenId" parameterType="java.lang.String" resultType="int">
+	select count(1) from fj_customer where openId = #{openId};
+  </select>
+  <select id="getNotReadMsgListByCustomerId" resultMap="ListViewResultMap" parameterType="int" >
+    select 
+    ch.titleMsg, ch.source, ch.sourceId,
+	(SELECT COUNT(1) FROM fj_chatRecords WHERE chatId = ch.id AND isRead = 0 and chatFromType = 'U') notReadNum,
+	ch.updatedAt
+    from fj_chats ch
+    where ch.customerId = #{customerId}
+    order by updatedAt desc
+  </select>
+  
+</mapper>

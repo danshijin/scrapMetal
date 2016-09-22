@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<head>
+<meta charset="utf-8">
+<title>SMM废金属管理系统--订单管理</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<meta content="" name="description">
+<meta content="" name="author">
+<link href="${request.getContextPath()}/Public/assets/admin/css/css.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/plugins/simple-line-icons/simple-line-icons.min.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/css/components-rounded.css" id="style_components" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/css/plugins.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/admin/css/layout.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/admin/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color">
+<link href="${request.getContextPath()}/Public/assets/admin/css/custom.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/admin/css/common.css" rel="stylesheet" type="text/css">
+<link rel="shortcut icon" href="${request.getContextPath()}/Public/favicon.ico">
+<link href="${request.getContextPath()}/Public/css/client.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/css/page1.css" rel="stylesheet" type="text/css">
+<link href="${request.getContextPath()}/Public/assets/global/css/kkpager.css" rel="stylesheet" type="text/css">
+<script>BASE_URL = '${request.getContextPath()}'</script>
+<link href="${request.getContextPath()}/Public/css/customerDetail.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="${request.getContextPath()}/Public/My97DatePicker/WdatePicker.js"></script>
+<style type="text/css">
+body{margin:0;padding:0;}
+ /*div_Import */
+#div_Import{position:fixed;z-index:999;width:600px;height:400px;border:1px solid #ccc;background:#efefef;display:none;overflow:auto;}
+#div_Import .tit{background:#ddd;display:block;height:15px;}
+#div_Import .tit i{float:right;line-height:15px;padding:0 8px;cursor:pointer;}
+</style>
+
+</head>
+
+<body class="page-header-top-fixed">
+<!--头部信息结束 -->
+<div class="page-header">
+	<!--头部开始-->
+	<#include "/include/top.html" />
+	<!-- 头部信息结束 -->
+	<!-- 头部菜单开始-->
+	<#include "/include/top_menu.html" />
+	<!-- 头部菜单结束 -->
+</div>
+<div class="page-container">
+	<!-- 内容开始 -->
+	<div class="page-content">
+		<div class="container-fluid">
+			<!-- 当前位置提示结束 -->
+			<!-- 当前位置提示开始 -->
+			<ul class="page-breadcrumb breadcrumb">
+				<li>
+					<a href="#">首页</a><i class="fa fa-circle"></i>
+				<li class="active">
+					 废金属管理<i class="fa fa-circle"></i>
+				<li class="active">
+					 订单管理
+			</ul>
+			<div class="row margin-top-10">
+				<!--位置提示结束  -->
+				<div class="col-md-13">
+				     <div class="portlet light bordered">
+					    <div class="portlet-body">
+					    	<div style="float: left;">
+									视图：
+									<a href="${request.getContextPath()}/order/query.do?orderStatus=-1" <#if orderStatus ?? && orderStatus == -1>class="btn green"<#else>class="btn btn-default"</#if>>列表</a>
+									<a href="${request.getContextPath()}/order/query.do?orderStatus=2" <#if orderStatus ?? && orderStatus == 2>class="btn green"<#else>class="btn btn-default"</#if>>已成交</a>
+									<a href="${request.getContextPath()}/order/query.do?orderStatus=1" <#if orderStatus ?? && orderStatus == 1>class="btn green"<#else>class="btn btn-default"</#if>>未成交</a>	
+									<a href="${request.getContextPath()}/order/query.do?orderStatus=0" <#if orderStatus ?? && orderStatus == 0>class="btn green"<#else>class="btn btn-default"</#if>>等待确认</a>
+									<a href="${request.getContextPath()}/order/query.do?orderStatus=3" <#if orderStatus ?? && orderStatus == 3>class="btn green"<#else>class="btn btn-default"</#if>>已取消</a>
+							</div>
+						</div>
+						<br><br>
+						<div class="portlet-body">
+						 <form id="frm1" action="${request.getContextPath()}/order/query.do" method="post">
+						 <table>
+						 	<tr>
+						 		<td><input type="hidden" id="orderStatus" name="orderStatus" value="${orderStatus}">
+							 		<select class="form-control" id="attribute" name="attribute" >
+												<option value="1" <#if attribute?? && attribute==1> selected</#if> >信息标题</option>
+												<option value="2" <#if attribute?? && attribute==2> selected</#if> >手机</option>
+												<option value="3" <#if attribute?? && attribute==3> selected</#if> >订单编号</option>
+											    <option value="4" <#if attribute?? && attribute==4> selected</#if> >姓名</option>
+												<option value="5" <#if attribute?? && attribute==5> selected</#if> >公司名</option>
+												<option value="6" <#if attribute?? && attribute==6> selected</#if> >负责人</option>
+									</select>
+						 		</td>
+						 		<td>&nbsp;:&nbsp;</td>
+						 		<td>
+										<input type="text" class="form-control" id="content" style="width: 200px;" name="content" value="${content!}">
+						 		</td>
+						 		<td>&nbsp;</td>
+						 		<td>&nbsp;</td>
+						 		<td style="width: 30px;">&nbsp;</td>
+						 		<td>
+										货物所在地 :
+						 		</td>
+						 		<td>
+										<select class="form-control"  id="goodsProv"  name="goodsProv" onchange="setChildAreas()">
+											<option value="-1">--请选择--</option>
+											<#list areas as area>
+											<option  <#if goodsProv?? && goodsProv==area.id>selected</#if> value="${(area.id)!}">${(area.name)!}</option>
+											</#list>
+										</select>
+								</td>
+								<td>
+										<select class="form-control" id="goodsCity" name="goodsCity" style="display: none">
+											<option value="-1">--请选择--</option>
+										</select>
+						 		</td>
+						 	</tr>
+						 	<tr>
+						 		<td>
+						 			<select class="form-control" id="dates" name="dates" >
+											<option value="1" <#if dates?? && dates==1> selected</#if>>下单时间</option>
+											<option value="2" <#if dates?? && dates==2> selected</#if>>成交时间</option>
+									</select>
+						 		</td>
+						 		<td>&nbsp;:&nbsp;</td>
+						 		<td>
+						 			<input type="text" class="form-control" id="statDate" name="statDate" value="${statDate!}"  onclick="WdatePicker();">
+						 		</td>
+						 		<td>至</td>
+						 		<td>
+						 			<input type="text" class="form-control" id="endDate" name="endDate" value="${endDate!}" onclick="WdatePicker();">
+						 		</td>
+						 		<td>&nbsp;</td>
+						 		<td>
+						 			分类 :
+						 		</td>
+						 		<td>
+						 			<select class="form-control"  id="itemId" name="itemId">
+										<option class="form-control" value="-1">--请选择--</option>
+											<#list items as item>
+												<option   value="${(item.id)!}" <#if item?? && item.id==itemId> selected</#if>>${(item.name)!}</option>
+											</#list>
+									</select>	
+						 		</td>
+						 		<td>&nbsp;</td>
+						 		<td>
+						 			<button type="button"  class="btn green" onclick="resets();">
+										<i class="fa fa-search">重置 </i>
+									</button>
+									<button  class="btn green">
+										<i class="fa fa-search"></i> 搜索 
+									</button>
+						 		</td>
+						 	</tr>
+						 </table>
+					</form>
+				</div>
+			
+						<div class="row">
+									<div
+										style="float: right;width: 28%;text-align: right;padding-right: 18px;">
+										<p class="btn green" onclick="ExporOrderList()">
+											<i class="fa fa-file-excel-o"></i> 导出
+										</p>
+									</div>
+						</div>	
+						<div class="table-scrollable">
+				          		<table class="table table-striped table-bordered table-advance table-hover ttTbl" id="myTable" >
+						          	<thead>
+										<tr>		
+											<th>订单编号</th>
+											<th>分类</th>
+											<th>信息标题</th>
+											<th>价格</th>
+											<th>数量</th>
+											<th>总金额</th>
+											<th>货物所在地</th>
+											<th>价格说明</th>
+											<th>卖方手机</th>
+											<th>买方手机</th>
+											<th>下单时间</th>
+											<th>成交时间</th>
+											<th>确认状态</th>
+											<th>负责人</th>
+											<th>操作</th>
+										</tr>
+								</thead>
+								<tbody>
+									<#list list as order> 
+											<tr>
+												<td>${order.orderNo}</td>
+												<td>${order.itemName}</td>
+												<td>
+													<#if order.source==1>
+														<a href="${request.getContextPath()}/supply/supplyDetail.do?id=${order.sourceId}">${order.infoTitle}</a>
+													<#elseif  order.source==2>
+														<a href="${request.getContextPath()}/Purchase/purchasDetail.do?id=${order.sourceId}">${order.infoTitle}</a>
+													<#elseif  order.source==3>
+														${order.infoTitle}
+													</#if>
+												</td>
+												<td>${order.price}</td>
+												<td>${order.quantity?string('#.#####')}<#if order.quantityUnit??&&order.quantityUnit==0>吨</#if></td>
+												<td>${(order.price*order.quantity)?string('#.##')}<#if order.priceUnit??&&order.priceUnit==0>元<#else>美元</#if></td>
+												<td>${order.pcname}</td>
+												<td>${order.strPriceExplain}</td>
+												<td><a href="${request.getContextPath()}/orders/customerDetail.do?customerId=${order.sellerId}">${order.sellerPhone}</a></td>
+												<td><a href="${request.getContextPath()}/orders/customerDetail.do?customerId=${order.buyerId}">${order.buyerPhone}</a></td>
+												<td>${order.createdAt?string("yyyy-MM-dd HH:mm:ss")}</td>
+												<td>${(order.dealTime?string("yyyy-MM-dd HH:mm:ss"))!}</td>
+												<td><font <#if order.isBuyerConfirmed??&&(order.isBuyerConfirmed==1||order.isBuyerConfirmed==2)>style="color:#02C874 " title='${(order.buyerConfirmedTime)?string("yyyy-MM-dd HH:mm:ss")}'</#if>>买家</font>&nbsp;<font <#if order.isBuyerConfirmed??&&(order.isSellerConfirmed==1||order.isSellerConfirmed==2)>style="color:#02C874 " title='${(order.sellerConfirmedTime)?string("yyyy-MM-dd HH:mm:ss")}' </#if>>卖家</font></td>
+												<td>${order.name}</td>
+												<td>
+												<a href="javascript:orders_details(${order.id})">查看订单</a>
+												<#if order.orderStatus??&&order.orderStatus==0>
+												<a href="javascript:confirmOrder(${order.id})">确认交收</a>
+												<a href="javascript:closeOrder(${order.id},3)">取消订单</a>
+												</#if>
+												<#if order.orderStatus??&&order.orderStatus==1>
+												<a href="javascript:closeOrder(${order.id},3)">取消订单</a>
+												未成交
+												</#if>
+												<#if order.orderStatus??&&order.orderStatus==2>
+												已成交
+												</#if>
+												</td>
+											</tr>
+									</#list>
+								  </tbody>
+								</table>
+						 	</div>
+						 	<div style="width: 80%; margin: 0 auto;">
+									<div id="kkpager"></div>
+									<input type="hidden" value="${totalPage}" id="totalPage">
+									<input type="hidden" value="${totalRecords}" id="totalRecords">
+							</div>
+						 </div>		
+					</div>
+				</div>
+			</div>
+		</div>
+</div>
+<!-- 底部开始 -->
+<#include "/include/foot.html" />
+<!-- 底部结束 -->
+
+<!--[if lt IE 9]>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/respond.min.js"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/excanvas.min.js"></script> 
+<![endif]-->
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery-migrate.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery.cokie.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/jquery-notific8/jquery.notific8.min.js"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/scripts/metronic.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/admin/scripts/layout.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/kkpager.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/admin/scripts/commonUtils.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/admin/scripts/tc.min.js" type="text/javascript"></script>
+<script src="${request.getContextPath()}/Public/assets/admin/scripts/ajaxfileupload.js" type="text/javascript"></script>
+<script>
+
+
+jQuery(document).ready(function() {
+	   Metronic.init(); // init metronic core componets
+	   Layout.init(); // init layout
+	   setChildAreas();
+	});
+	
+function setChildAreas(){
+	var parentId = $("#goodsProv").val();
+	var city="${goodsCity}";
+	$("#goodsCity").find('option').remove();
+	$.ajax({
+		type : "POST",
+		url : "${request.getContextPath()}/Purchase/getChildAreas.do?parentId="+parentId,
+		dataType : "json",
+		success : function(areas) {
+			if(areas && areas instanceof Array && areas.length>0){
+				$("#goodsCity").show();
+				$("#goodsCity").append('<option  selected value="-1">--请选择--</option>');
+				var area;
+				
+				for(var i=0;i<areas.length;i++){
+					area = areas[i];							
+				if(area && typeof area=='object'){
+						if(city==area.id){
+						$("#goodsCity").append('<option  selected value="'+ area.id +'">'+ area.name +'</option>');
+						}else{
+							$("#goodsCity").append('<option  value="'+ area.id +'">'+ area.name +'</option>');	
+						}
+					}
+				}
+			}else{
+				$("#goodsCity").hide();
+				if(areas==null){
+					$("#goodsCity").append('<option  selected value="-1">--请选择--</option>');
+				}
+			}
+		}
+	});
+}
+	
+	
+	//初始化分页插件
+	function getParameter(name) { 
+		var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)"); 
+		var r = window.location.search.substr(1).match(reg); 
+		if (r!=null) return unescape(r[2]); return null;
+	}
+	
+	//init
+	$(function(){
+		
+		var totalPage = $('#totalPage').val();
+		var totalRecords = $('#totalRecords').val();
+		var orderStatus = $('#orderStatus').val();
+		var attribute = $('#attribute').val();
+		var content = $('#content').val(); 
+		var goodsProv=$("#goodsProv").val();
+		var goodsCity=$("#goodsCity").val();
+		var dates=$("#dates").val();
+		var statDate=$("#statDate").val();
+		var endDate=$("#endDate").val();
+		var itemId=$("#itemId").val();
+		
+		
+		var pageNo = getParameter('pno');
+		if(!pageNo){
+			pageNo = 1;
+		}
+		//生成分页
+		//有些参数是可选的，比如lang，若不传有默认值
+		kkpager.generPageHtml({
+			pno : pageNo,
+			//总页码
+			total : totalPage,
+			//总数据条数
+			totalRecords : totalRecords,
+			getLink : function(n){
+				return this.hrefFormer + this.hrefLatter + "?pno="+n+"&orderStatus="+orderStatus+"&attribute="+attribute+"&content="+
+						content+"&goodsProv="+goodsProv+"&goodsCity="+goodsCity+"&dates="+dates+"&statDate="+statDate+"&endDate="+endDate+"&itemId="+itemId;
+			}
+		});
+	});
+
+	//重置		
+	function resets(){
+		$("#content").val("");
+		$("#goodsProv").val("-1");
+		$("#statDate").val("");
+		$("#endDate").val("");
+		$("#itemId").val("-1");
+		$("#dates").val("1");
+		setChildAreas();
+		
+	}
+	function closeOrder(id,orderStatus){
+		CommonUtils.confirm("提示","确定要取消订单吗?","toCloseOrder("+id+","+orderStatus+")");
+	}
+	function toCloseOrder(id,orderStatus){
+		$.ajax({
+			url : "${request.getContextPath()}/order/updateOrderStatus.do",
+			type : "post",
+			dataType:'JSON',
+			data:{"orderId":id,"orderStatus":orderStatus},
+			success : function(result) {
+				if (result.result == "succ") {
+					CommonUtils.succModal2("系统提示",result.msg);
+				}else{
+					CommonUtils.succModal2("系统提示",result.msg);
+				}
+			}
+		});
+	}
+	
+	function confirmOrder(id){
+		CommonUtils.confirm2("提示","该笔交易是否成交?","toConfirmOrder("+id+","+1+")","toConfirmOrder("+id+","+2+")");
+	}
+	function toConfirmOrder(id,orderStatus){
+		$.ajax({
+			url : "${request.getContextPath()}/order/updateOrderStatus.do",
+			type : "post",
+			dataType:'JSON',
+			data:{"orderId":id,"orderStatus":orderStatus},
+			success : function(result) {
+				if (result.result == "succ") {
+					CommonUtils.succModal2("系统提示",result.msg);
+				}else{
+					CommonUtils.succModal2("系统提示",result.msg);
+				}
+			}
+		});
+	}
+	
+	function orders_details(orderId){
+		CommonUtils.editModal(BASE_URL + "/order/queryOrderInfo.do?id="+orderId, 1000);
+		//window.location.href=BASE_URL + "/order/queryOrderInfo.do?id="+orderId;
+	}
+	
+	function ExporOrderList(){
+		var orderStatus = $('#orderStatus').val();
+		var attribute = $('#attribute').val();
+		var content = $('#content').val(); 
+		var goodsProv=$("#goodsProv").val();
+		var goodsCity=$("#goodsCity").val();
+		var dates=$("#dates").val();
+		var statDate=$("#statDate").val();
+		var endDate=$("#endDate").val();
+		var itemId=$("#itemId").val();
+		
+		window.location.href = BASE_URL +"/order/ExporOrderList.do?orderStatus="+orderStatus+"&attribute="+attribute+"&content="+
+			content+"&goodsProv="+goodsProv+"&goodsCity="+goodsCity+"&dates="+dates+"&statDate="+statDate+"&endDate="+endDate+"&itemId="+itemId;
+	}
+	
+
+</script>
+</body>
+</html>

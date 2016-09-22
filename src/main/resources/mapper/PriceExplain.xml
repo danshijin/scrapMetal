@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 价格说明 author tantg -->
+
+
+<mapper namespace="com.smm.scrapMetal.dao.PriceExplainDao">
+ 
+	<!-- 国内 -->
+	<select id="queryHomePriceExplain" resultType="com.smm.scrapMetal.domain.PriceExplain">
+	SELECT * FROM fj_priceExplain WHERE isDomestic=1 and isDel=0
+	</select>
+	 <!-- 国外 -->
+	<select id="queryNotHomePriceExplain" resultType="com.smm.scrapMetal.domain.PriceExplain">
+	SELECT * FROM fj_priceExplain WHERE isDomestic=0 and isDel=0
+	</select>
+	<!-- 根据Id查询 -->
+	<select id="queryPriceExplainById" parameterType="java.lang.Integer" resultType="com.smm.scrapMetal.domain.PriceExplain">
+	SELECT * FROM fj_priceExplain WHERE id=#{value}
+	</select>
+	
+	<!-- 查询所有未删除 -->
+	<select id="queryAll" resultType="com.smm.scrapMetal.domain.PriceExplain">
+	SELECT * FROM fj_priceExplain WHERE isDel!=1
+	</select>
+	
+	<insert id="addPriceExplain" parameterType="com.smm.scrapMetal.domain.PriceExplain">
+	INSERT INTO fj_priceExplain 
+		( 
+		NAME, 
+		isDomestic, 
+		isDefault, 
+		isDel, 
+		createdAt, 
+		createdBy
+		)
+		VALUES
+		( 
+		#{name}, 
+		#{isDomestic}, 
+		#{isDefault}, 
+		#{isDel}, 
+		#{createdAt}, 
+		#{createdBy}
+		)
+	</insert>
+	
+	<update id="delPriceExplain" parameterType="java.lang.Integer">
+		update fj_priceExplain set isDel = 1
+		WHERE
+		id = #{id}
+	</update>			
+
+</mapper>

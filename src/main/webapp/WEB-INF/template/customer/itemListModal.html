@@ -1,0 +1,78 @@
+﻿<!-- 模态窗口编辑模板 -->
+<!-- 窗口标题开始 -->
+<div class="modal-header">
+	<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+	<h4 class="modal-title" style="font-weight:bold;">废旧品种</h4>
+</div>
+<!-- 窗口标题结束-->
+<!-- 内容开始 -->
+<div class="modal-body" id="clo">
+	<div class="portlet-body form">
+		<div class="form-body">
+			<div class="form-group form-md-radios" >
+		
+			
+			<div class="dataDiv">
+				
+				<table class="table table-striped table-bordered table-hover ttTbl" id="myTable">
+					<thead>
+					<tr>
+									<th class="table-checkbox"><input type="checkbox"
+												class="group-checkable" data-set="#myTable .checkboxes" /></th>
+											<th scope="col">品类名称</th>
+					</tr>
+					</thead>
+					<tbody>
+					<#list itemList as item>
+					<tr>
+					<td>
+					<input type="checkbox" class="checkboxes"
+												name="checkboxes" value="${item.id?if_exists}|${item.name?if_exists}" />
+					</td>
+						<td>${item.name?if_exists}</td>
+					</tr>
+				</#list>
+					</tbody>
+				</table>
+			</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 内容结束 -->
+<!-- 底部按钮开始 -->
+<div class="modal-footer" style="text-align: center;">
+	<button type="button" class="btn default fa fa-times" id="chooseCompanyClose" data-dismiss="modal">关闭</button>
+	<button type="button" onclick="optionConfirm()" class="btn green  fa fa-check">选择</button>
+</div>
+<script>
+jQuery(document).ready(function() {
+	CommonUtils.checkInit();
+});
+function optionConfirm(){
+	var strId=document.getElementsByName("checkboxes");
+	var objarrayId=strId.length;
+	var ids="";
+	var names="";
+	for (i=0;i<objarrayId;i++)
+	{
+	  if(strId[i].checked == true)
+	  {
+		  var spl=strId[i].value.split("|");
+		  ids+=spl[0]+",";
+		  names+=spl[1]+",";
+	  }
+	}
+	if(ids == "")
+	{
+		CommonUtils.succModal("系统提示", "你没有选中一条记录！");
+	}else{
+		ids=ids.substr(0,ids.length-1);
+		names=names.substr(0,names.length-1);
+	}
+	
+	$("#itemId").val(ids);
+	$("#itemName").val(names);
+	$("#chooseCompanyClose").click();
+}
+</script>

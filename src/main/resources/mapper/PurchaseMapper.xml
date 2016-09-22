@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 采购单 author tantg -->
+
+<!-- 查询采购单 -->
+<mapper namespace="com.smm.scrapMetal.dao.PurchaseDao">
+
+	<select id="queryPurchase" parameterType="java.util.Map"
+		resultType="com.smm.scrapMetal.domain.PurchaseDomain">
+		SELECT p.id,
+		p.itemId,
+		p.customerId,
+		p.goodsProv,
+		p.goodsCity,
+		p.infoTitle,
+		p.description,
+		p.quantity,
+		p.unit,
+		p.priceNegotiable,
+		p.expectPrice,
+		p.expectPriceUnit,
+		p.priceExplain,
+		p.expiryType,
+		p.phone,
+		p.infoStatus,
+		p.createdAt,
+		p.createdBy,
+		p.updatedAt,
+		p.updatedBy,
+		p.auditedAt,
+		p.auditedBy,
+		p.auditedComment,
+		t.name itemName,
+		c.name customerName,
+		isUpdatedByCustomer,
+		(CASE WHEN isUpdatedByCustomer =1 THEN  (CASE WHEN c.name IS NULL or c.name='' THEN c.nickName ELSE c.name END) ELSE u.name  END) updatedByName,
+		a.name  cityName,
+		s.name  provName,
+		p.isCreatedByCustomer,
+		(CASE WHEN isCreatedByCustomer =1 THEN  (CASE WHEN c.name IS NULL or c.name='' THEN c.nickName ELSE c.name END) ELSE cr.name  END) createdByName
+		FROM
+		fj_purchase p
+		left join  fj_items t on t.id=p.itemId
+		left join  fj_customer c on c.id=p.customerId
+		left join  fj_users cr on cr.id=p.createdBy
+		left join  fj_users u on u.id=p.updatedBy
+		left join  ch_areas a on p.goodsCity=a.id
+		left join  ch_areas s on p.goodsProv=s.id
+		where 1=1 
+		<if test="infoStatus!=null and infoStatus!='' "><!-- 状态 -->
+		and  p.infoStatus=#{infoStatus}
+		</if>
+		<if test="infoStatus==null or infoStatus=='' "><!-- 状态 -->
+		and  p.infoStatus !=4
+		</if>
+		<if test="itemId!=null  and itemId!=-1  "><!-- 状态 -->
+		and  p.itemId =#{itemId}
+		</if>
+		<if test="nameType==0 and liekname!=null and  liekname!='' "><!-- 标题 -->
+		and p.infoTitle like '%${liekname}%'
+		</if>
+		<if test="nameType==1 and liekname!=null and  liekname!='' "><!-- 电话-->
+		and p.phone like '%${liekname}%'
+		</if>
+		<if test="nameType==2 and liekname!=null and  liekname!='' "><!-- 客户名称 -->
+		and c.name like '%${liekname}%'
+		</if>
+		<if test="nameType==3 and liekname!=null and  liekname!='' "><!-- 公司名称 -->
+		and c.companyName like '%${liekname}%'
+		</if>
+		
+		<if test="goodsProv!=null and goodsProv!=''"><!-- 状省 -->
+		and p.goodsProv=#{goodsProv}
+		</if>
+		<if test="goodsCity!=null and goodsCity!=''"><!-- 市-->
+		and p.goodsCity=#{goodsCity}
+		</if>
+		<if test="dateType==0 and startDate!=null and startDate!=''"><!-- 发布时间 -->
+		 and p.createdAt &gt; #{startDate}
+		</if>
+		<if test="dateType==0 and endDate!=null and endDate!=''">
+		 and p.createdAt &lt;= #{endDate}
+		</if>
+		<if test="dateType==1 and startDate!=null and startDate!=''"><!--  更新时间-->
+		 and p.updatedAt &gt;#{startDate}
+		</if>
+		<if test="dateType==1 and endDate!=null and endDate!=''">
+		 and p.updatedAt  &lt;= #{endDate}
+		</if>
+		<if test="nameType==4 and liekname!=null and  liekname!='' "><!-- 创建人-->
+		 HAVING createdByName like '%${liekname}%'
+		</if>
+		order by p.updatedAt DESC
+		<if test="startNum!=null and endNum!=null">
+			LIMIT #{startNum},#{endNum}
+		</if>	
+	</select>
+	
+	<!-- 根据Id查询 -->
+	<select id="queryPurchaseById" parameterType="java.lang.Integer"
+		resultType="com.smm.scrapMetal.domain.PurchaseDomain">
+		SELECT p.id,
+		p.itemId,
+		p.customerId,
+		p.goodsProv,
+		p.goodsCity,
+		p.infoTitle,
+		p.description,
+		p.quantity,
+		p.unit,
+		p.priceNegotiable,
+		p.expectPrice,
+		p.expectPriceUnit,
+		p.priceExplain,
+		p.expiryType,
+		p.phone,
+		p.infoStatus,
+		p.lastInfoStatus,
+		p.createdAt,
+		p.createdBy,
+		p.updatedAt,
+		p.updatedBy,
+		p.auditedAt,
+		p.auditedBy,
+		p.auditedComment,
+		t.name itemName,
+		c.name customerName,
+		(CASE WHEN isUpdatedByCustomer =1 THEN  (CASE WHEN c.name IS NULL or c.name='' THEN c.nickName ELSE c.name END) ELSE u.name  END) updatedByName,
+		a.name  cityName,
+		a1.name  goodsProvName,
+		e.name   priceExplainName,
+		isCreatedByCustomer,
+		(CASE WHEN isCreatedByCustomer =1 THEN  (CASE WHEN c.name IS NULL or c.name='' THEN c.nickName ELSE c.name END) ELSE cr.name  END) createdByName
+		FROM
+		fj_purchase p
+		left join  fj_items t on t.id=p.itemId
+		left join  fj_customer c on c.id=p.customerId
+		left join  fj_users cr on cr.id=p.createdBy
+		left join  fj_users u on u.id=p.updatedBy
+		left join  ch_areas a on p.goodsCity=a.id
+		left join  ch_areas a1 on p.goodsProv=a1.id
+		left join   fj_priceExplain e on  e.id=p.priceExplain
+		where  p.id=#{value}
+	</select>
+	<!-- 添加方法采购单 -->
+	<insert id="addPurchase" parameterType="com.smm.scrapMetal.domain.PurchaseDomain">
+		INSERT INTO fj_purchase
+		(
+		itemId,
+		customerId,
+		goodsProv,
+		goodsCity,
+		infoTitle,
+		description,
+		quantity,
+		unit,
+		priceNegotiable,
+		expectPrice,
+		expectPriceUnit,
+		priceExplain,
+		expiryType,
+		phone,
+		infoStatus,
+		createdAt,
+		createdBy,
+		updatedAt,
+		updatedBy,
+		auditedAt,
+		auditedBy,
+		auditedComment,
+		isCreatedByCustomer,
+		isUpdatedByCustomer
+		)
+		VALUES
+		(
+		#{itemId},
+		#{customerId},
+		#{goodsProv},
+		#{goodsCity},
+		#{infoTitle},
+		#{description},
+		#{quantity},
+		#{unit},
+		#{priceNegotiable},
+		#{expectPrice},
+		#{expectPriceUnit},
+		#{priceExplain},
+		#{expiryType},
+		#{phone},
+		#{infoStatus},
+		now(),
+		#{createdBy},
+		now(),
+		#{updatedBy},
+		#{auditedAt},
+		#{auditedBy},
+		#{auditedComment},
+		#{isCreatedByCustomer},
+		#{isUpdatedByCustomer}
+		);
+	</insert>
+	<!-- 修改采购单 -->
+	<update id="updatePurchase" parameterType="com.smm.scrapMetal.domain.PurchaseDomain">
+
+		UPDATE fj_purchase
+		SET
+		id = #{id} ,
+		itemId = #{itemId} ,
+		customerId = #{customerId} ,
+		goodsProv = #{goodsProv} ,
+		goodsCity = #{goodsCity} ,
+		infoTitle = #{infoTitle} ,
+		description = #{description} ,
+		quantity = #{quantity} ,
+		unit = #{unit} ,
+		priceNegotiable = #{priceNegotiable} ,
+		expectPrice = #{expectPrice} ,
+		expectPriceUnit = #{expectPriceUnit} ,
+		priceExplain = #{priceExplain} ,
+		expiryType = #{expiryType} ,
+		phone = #{phone} ,
+		infoStatus = #{infoStatus} ,
+		lastInfoStatus = #{lastInfoStatus},
+		createdAt = #{createdAt} ,
+		createdBy = #{createdBy} ,
+		updatedAt = #{updatedAt},
+		updatedBy = #{updatedBy} ,
+		auditedAt = #{auditedAt} ,
+		auditedBy = #{auditedBy} ,
+		auditedComment = #{auditedComment},
+		isCreatedByCustomer=#{isCreatedByCustomer},
+		isUpdatedByCustomer=#{isUpdatedByCustomer}
+		WHERE
+		id = #{id} ;
+	</update>
+	<!-- 删除采购单 -->
+	<update id="delPurchase" parameterType="java.lang.Integer" >
+
+  	   UPDATE fj_purchase SET infoStatus=4 WHERE id IN 
+    <foreach collection="array" index="index" item="item" open="(" separator="," close=")"> 
+        #{item} 
+    </foreach>	
+	</update>
+	
+		<!-- 批量更新采购单      <foreach collection="array" index="index" item="item" open="(" separator="," close=")">#{item}</foreach> -->
+	<update id="batchUpdatePurchase" parameterType="java.util.Map" >
+
+  	   UPDATE fj_purchase SET updatedAt = #{updatedAt}
+  	   <if test="status !=null and status != ''">
+			,infoStatus = #{status} 
+		</if>
+  	    WHERE id = #{array}  
+	</update>
+	
+	<!-- 导出 -->
+	<select id="ExporQueryPurchaseByIds" parameterType="java.util.Map"
+		resultType="com.smm.scrapMetal.domain.PurchaseDomain">
+				SELECT p.id,
+		p.itemId,
+		p.customerId,
+		p.goodsProv,
+		p.goodsCity,
+		p.infoTitle,
+		p.description,
+		p.quantity,
+		p.unit,
+		CONCAT(p.quantity ,CASE WHEN p.unit=0  THEN '吨' ELSE '' END)  quantityName,
+		p.priceNegotiable,
+		(CASE WHEN p.priceNegotiable=1  THEN '面议' ELSE CONCAT(p.expectPrice ,CASE WHEN p.expectPriceUnit=0  THEN '元' ELSE '美元' END) END)  expectPriceName,
+		p.expectPrice,
+		p.expectPriceUnit,
+		p.priceExplain,
+		p.expiryType,
+		p.phone,
+		p.infoStatus,
+		p.createdAt,
+		p.createdBy,
+		p.updatedAt,
+		p.updatedBy,
+		p.auditedAt,
+		p.auditedBy,
+		p.auditedComment,
+		t.name itemName,
+		c.name customerName,
+		(CASE WHEN isUpdatedByCustomer =1 THEN  (CASE WHEN c.name IS NULL THEN c.nickName ELSE c.name END) ELSE u.name  END) updatedByName,
+		e.name   priceExplainName,
+		CONCAT(CASE WHEN a1.name!=a.name  THEN a1.name ELSE '' END,a.name)  cityName,
+		(CASE WHEN isCreatedByCustomer =1 THEN  (CASE WHEN c.name IS NULL THEN c.nickName ELSE c.name END) ELSE cr.name  END) createdByName
+		FROM
+		fj_purchase p
+		LEFT JOIN  fj_items t ON t.id=p.itemId
+		LEFT JOIN  fj_customer c ON c.id=p.customerId
+		LEFT JOIN  fj_users cr ON cr.id=p.createdBy
+		LEFT JOIN  fj_users u ON u.id=p.updatedBy
+		LEFT JOIN  ch_areas a ON p.goodsCity=a.id
+		LEFT JOIN  ch_areas a1 ON p.goodsProv=a1.id
+		LEFT JOIN   fj_priceExplain e ON  e.id=p.priceExplain
+		where 1=1		
+		<if test="array!=null">
+		 and  p.id  in 
+		<foreach collection="array" index="index" item="item" open="(" separator="," close=")"> 
+        #{item} 
+    	</foreach>
+    	</if>
+    	<if test="infoStatus!=null and infoStatus!=-1"><!-- 状态 -->
+		and  p.infoStatus=#{infoStatus}
+		</if>
+		<if test="infoStatus==null  or infoStatus==-1  "><!-- 状态 -->
+		and  p.infoStatus !=4
+		</if>
+		<if test="nameType==0 and liekname!=null and  liekname!='' "><!-- 标题 -->
+		and p.infoTitle like '%${liekname}%'
+		</if>
+		<if test="nameType==1 and liekname!=null and  liekname!='' "><!-- 电话-->
+		and p.phone like '%${liekname}%'
+		</if>
+		<if test="nameType==2 and liekname!=null and  liekname!='' "><!-- 客户名称 -->
+		and c.name like '%${liekname}%'
+		</if>
+		<if test="nameType==3 and liekname!=null and  liekname!='' "><!-- 公司名称 -->
+		and c.companyName like '%${liekname}%'
+		</if>
+		<if test="nameType==4 and liekname!=null and  liekname!='' "><!-- 创建人-->
+		and cr.name like '%${liekname}%'
+		</if>
+		<if test="goodsProv!=null and goodsProv!=''"><!-- 状省 -->
+		and p.goodsProv=#{goodsProv}
+		</if>
+		<if test="goodsCity!=null and goodsCity!=''"><!-- 市-->
+		and p.goodsCity=#{goodsCity}
+		</if>
+		<if test="dateType==0 and startDate!=null and startDate!=''"><!-- 发布时间 -->
+		 and p.createdAt &gt; #{startDate}
+		</if>
+		<if test="dateType==0 and endDate!=null and endDate!=''">
+		 and p.createdAt &lt;= #{endDate}
+		</if>
+		<if test="dateType==1 and startDate!=null and startDate!=''"><!--  更新时间-->
+		 and p.updatedAt &gt;#{startDate}
+		</if>
+		<if test="dateType==1 and endDate!=null and endDate!=''">
+		 and p.updatedAt  &lt;= #{endDate}
+		</if>	
+    	ORDER BY p.id
+	</select>
+	
+	<!-- 根据手机号查询公司 -->
+	<select id="queryCustomer" parameterType="java.lang.String" resultType="com.smm.scrapMetal.domain.Customer">
+	SELECT  id,NAME,companyName FROM    fj_customer WHERE phone=#{value}
+	
+	</select>
+	
+	<!-- 接口列表方法 -->
+	<select id="qeuryPurchaseInter" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.PurchaseInter">			
+		SELECT p.id,
+		p.itemId,
+		c.name customerName,
+		p.goodsProv,
+		p.goodsCity,
+		p.infoTitle,
+		p.description,
+		p.quantity,
+		p.unit,
+		p.priceNegotiable,
+		p.expectPrice,
+		p.expectPriceUnit,
+		p.priceExplain,
+		p.expiryType,
+		p.updatedAt,
+		a.name goodsCityName,
+		s.name goodsProvName,
+		c.weChatAvatar,
+		e.name   priceExplainName,
+		nickName
+		FROM  fj_purchase p 
+		LEFT JOIN  fj_customer c ON c.id=p.customerId
+		left join  ch_areas a on p.goodsCity=a.id
+		left join  ch_areas s on p.goodsProv=s.id
+		left join   fj_priceExplain e on  e.id=p.priceExplain
+		where 1=1 and  p.infoStatus=1
+		<if test="infoTitle!=null and infoTitle!=null"><!-- 采购标题 -->
+		and p.infoTitle like '%${infoTitle}%'
+		</if>
+		<if test="itemId and itemId!=null"><!-- 分类 -->
+		and  p.itemId=#{itemId}
+		</if>
+		<if test="goodsProv!=null and goodsProv!=''"><!-- 状省 -->
+		and p.goodsProv=#{goodsProv}
+		</if>
+		<if test="goodsCity!=null and goodsCity!=''"><!-- 市-->
+		and p.goodsCity=#{goodsCity}
+		</if>
+		<if test="sort!=null  and   sortType!=null ">
+		<if test="sort==1 and sortType==0" >
+			order by p.updatedAt DESC
+		</if>
+		<if test="sort==0 and sortType==0" >
+			order by p.updatedAt 
+		</if>
+		<if test="sort==1 and sortType==1" >
+			order by p.expectPrice DESC
+		</if>
+		<if test="sort==0  and sortType==1" >
+			order by p.expectPrice 
+		</if>
+		<if test="sort==1 and sortType==2" >
+			order by p.quantity DESC
+		</if>
+		<if test="sort==0 and sortType==2" >
+			order by p.quantity 
+		</if>						
+		</if>
+		<if test="sort==null  or   sortType==null ">
+		 	order by p.updatedAt DESC
+		</if>
+		
+		<if test="startNum!=null  and endNum!=null ">
+			LIMIT #{startNum},#{endNum}
+		</if>	
+	</select>
+	<!-- 接口查询采购单明细 -->
+	<select id="PurchaseInterDetail" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.PurchaseInterDetail">			
+				SELECT p.id,
+		p.itemId,
+		c.name customerName,
+		p.goodsProv,
+		p.goodsCity,
+		p.infoTitle,
+		p.description,
+		p.quantity,
+		p.unit,
+		p.priceNegotiable,
+		p.expectPrice,
+		p.expectPriceUnit,
+		p.priceExplain,
+		p.expiryType,
+		p.updatedAt,
+		c.entTypes,
+		(SELECT  GROUP_CONCAT(NAME) entTypesName FROM ch_category WHERE modid=1 AND FIND_IN_SET (id,c.entTypes) ) entTypesName,
+		t.name itemName,
+		a.name goodsCityName,
+		s.name goodsProvName,
+		c.weChatAvatar,
+		c.nickName,	
+		auditedComment,
+		e.name   priceExplainName,
+		c.phone,
+		(CASE WHEN sumZans IS NOT NULL AND sumZans>0 THEN sumZans ELSE 0 END) AS sumZan,
+		(CASE WHEN whetherZans IS NOT NULL AND whetherZans>0 THEN 1 ELSE 0 END) AS whetherZan,
+		(CASE WHEN whetherFavorites IS NOT NULL AND whetherFavorites>0 THEN 1 ELSE 0 END) AS whetherFavorite
+		FROM  fj_purchase p 
+		LEFT JOIN  fj_customer c ON c.id=p.customerId 
+		LEFT JOIN  (SELECT COUNT(id) sumZans,sourceId FROM fj_upvote WHERE source=2 GROUP BY sourceId ) f ON f.sourceId=p.id
+		LEFT JOIN  (SELECT COUNT(id) whetherZans,sourceId,customerId 
+			FROM fj_upvote WHERE source=2 GROUP BY sourceId ,customerId) f1 ON f1.sourceId=p.id AND f1.customerId=#{customerId}
+		LEFT JOIN  (SELECT COUNT(id) whetherFavorites,sourceId,customerId 
+			FROM fj_favorite WHERE source=2 GROUP BY sourceId ,customerId) a ON a.sourceId=p.id AND a.customerId=#{customerId}
+		left join  fj_items t on t.id=p.itemId
+		left join  ch_areas a on p.goodsCity=a.id
+		left join  ch_areas s on p.goodsProv=s.id
+		left join   fj_priceExplain e on  e.id=p.priceExplain		
+		WHERE p.id=#{id}		
+	</select>
+	
+	
+	<select id="queryInfoTitle" parameterType="java.util.Map" resultType="java.lang.String"> 
+	 SELECT  GROUP_CONCAT(infoTitle) FROM  fj_purchase
+	 WHERE  infoStatus=1
+	 <if test="infoTitle!=null and infoTitle!=''"> 
+	 and  infoTitle LIKE '%${infoTitle}%' 
+	 </if>
+	 order by updatedAt DESC  LIMIT 0,10
+	
+	</select>
+
+</mapper>

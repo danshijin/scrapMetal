@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+
+<head>
+<meta charset="utf-8">
+<title>修改采购单</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1" name="viewport">
+<meta content="" name="description">
+<meta content="" name="author">
+<link href="${request.getContextPath()}/Public/assets/admin/css/css.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/font-awesome/css/font-awesome.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/bootstrap/css/bootstrap.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/uniform/css/uniform.default.css"
+	rel="stylesheet" type="text/css">
+
+<link
+	href="${request.getContextPath()}/Public/assets/global/css/components-rounded.css"
+	id="style_components" rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/css/plugins.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/admin/css/layout.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/admin/css/themes/default.css"
+	rel="stylesheet" type="text/css" id="style_color">
+<link
+	href="${request.getContextPath()}/Public/assets/admin/css/custom.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/admin/css/common.css"
+	rel="stylesheet" type="text/css">
+
+
+
+<link rel="shortcut icon"
+	href="${request.getContextPath()}/Public/favicon.ico">
+<!--[if lt IE 9]>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/respond.min.js"></script>
+<script src="${request.getContextPath()}/Public/assets/global/plugins/excanvas.min.js"></script>
+<![endif]-->
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery-migrate.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery-ui/jquery-ui.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap/js/bootstrap.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery.blockui.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery.cokie.min.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/uniform/jquery.uniform.min.js"
+	type="text/javascript"></script>
+
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery.sparkline.min.js"
+	type="text/javascript"></script>
+
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"
+	type="text/javascript"></script>
+
+<script
+	src="${request.getContextPath()}/Public/assets/global/scripts/metronic.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/admin/scripts/layout.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/admin/scripts/indexComponent.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/admin/scripts/commonUtils.js"
+	type="text/javascript"></script>
+
+<!-- select2控件 -->
+<!-- select2控件 -->
+<script type="text/javascript"
+	src="${request.getContextPath()}/Public/assets/global/plugins/select2/select2.js"></script>
+<script type="text/javascript"
+	src="${request.getContextPath()}/Public/assets/global/plugins/select2/select2_locale_zh-CN.js"></script>
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/select2/select2.css"
+	rel="stylesheet" type="text/css">
+
+<!-- 数据验证 -->
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery-validation/js/jquery.validate.js"
+	type="text/javascript"></script>
+<script
+	src="${request.getContextPath()}/Public/assets/global/plugins/jquery-validation/js/localization/messages_zh.js"
+	type="text/javascript"></script>
+
+
+<style type="text/css">
+* {
+	font-size: 14px;
+}
+
+#buyfrom label.error {
+	color: Red;
+	font-size: 13px;
+	margin-left: 5px;
+	padding-left: 16px;
+	background: left no-repeat;
+}
+
+.commonBtn {
+	margin: 0 5px;
+}
+
+.normalBtn {
+	border: 1px solid #C0C1B4;
+	color: #555;
+	background-color: #fff;
+}
+
+div.radio {
+	vertical-align: bottom;
+}
+
+
+
+</style>
+
+</head>
+<body class="page-header-top-fixed">
+	<div class="page-header">
+		<!--头部开始-->
+		<#include "/include/top.html" />
+		<!-- 头部信息结束 -->
+		<!-- 头部菜单开始 -->
+		<#include "/include/top_menu.html" />
+		<!-- 头部菜单结束 -->
+	</div>
+	<!-- END HEADER -->
+	<div class="page-container">
+		<div class="page-content">
+			<div class="container-fluid">
+				<ul class="page-breadcrumb breadcrumb">
+					<li><a href="#">首页</a><i class="fa fa-circle"></i></li>
+					<li class="active">废金属管理<i class="fa fa-circle"></i>
+					</li>
+					<li class="active">采购单</li>
+					<li class="active">修改采购单</li>
+				</ul>
+				<div class="row margin-top-10">
+					<div class="col-md-12">
+						<div class="portlet light bordered" align="center">
+							<form class="form-horizontal" id="purchasefrom">
+								<input type="hidden" value="${(purchase.id)!}" name="id" />
+								<p align="left">
+								<h3 style="font-weight: bold;">修改采购单</h3>
+								</p>
+
+								<div class="form-group">
+									<label class="col-sm-2 control-label">分类：</label>
+									<div class="col-sm-2" class="col-sm-2" style="width: 150px;">
+										<select class="form-control"  id="itemId"
+											name="itemId"> <#list itemList as item>
+											<option <#if purchase?? &&	purchase.itemId==item.id >selected</#if> value="${(item.id)!}" >${(item.name)!}</option> </#list>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">货物所在地：</label>
+									<div class="col-sm-2" class="col-sm-2" style="width: 150px;">
+										<select class="form-control" id="goodsProv"
+											 name="goodsProv"
+											onchange="setChildAreas()"> <#list areasList as
+											area>
+											<#if area.id?? && area.id!=392>
+											<option <#if purchase??&&purchase.goodsProv==area.id >selected</#if> value="${(area.id)!}" >${(area.name)!}</option> 
+											</#if>
+											</#list>
+											
+										</select>
+									</div>
+									<div class="col-sm-2" id="city" style="display: none;width: 150px;" >
+										<select id="goodsCity" class="form-control"
+											 name="goodsCity"></select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">信息标题：</label>
+									<div style="width: 250px;" class="col-sm-2">
+										<input type="text" class="form-control" id="infoTitle"
+											value="${(purchase.infoTitle)!}" name="infoTitle">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">采购详情：</label>
+									<div class="col-sm-2">
+										<textarea name="description" id="description"
+											style="width: 280px; height: 60px;">${(purchase.description)!}</textarea>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">数量(吨)：</label>
+									<div class="col-sm-2">
+										<input type="text" class="form-control" id="quantity"
+											value='${(purchase.quantity?string("#.#####"))!}' name="quantity">
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label class="col-sm-2 control-label">期望价格：</label>
+									<div class="col-sm-2" style="width: 150px;">
+										<input type="text" class="form-control" id="expectPrice"
+											value='${(purchase.expectPrice?string("#.##"))!}' name="expectPrice">
+									</div>
+									<div style="width: 150px;" class="col-sm-2">
+										<select id=expectPriceUnit class="form-control"
+											name="expectPriceUnit">
+											<option value="0"<#if purchase.expectPriceUnit?? &&
+												purchase.expectPriceUnit==0 >selected</#if> >元</option>
+											<option value="1"<#if purchase.expectPriceUnit?? &&
+												purchase.expectPriceUnit==1 >selected</#if> >美元</option>
+										</select>
+									</div>
+									<div style="width: 100px;height: 40px;line-height: 40px;" class="col-sm-2">
+									<label>	<input size="4" onclick="manyicheck()" style="line-height: 20px;width: 19px;height: 15px;" type="checkbox"  id="mianyi"
+											value="1"  <#if purchase.priceNegotiable?? &&
+										purchase.priceNegotiable==1 >checked</#if>
+										id="priceNegotiable" name="priceNegotiable" >面议
+									</div> </label>
+								</div>
+								<div class="form-group" >
+									<label class="col-sm-2 control-label">价格说明：</label>
+									<div  style="width: 200px;" class="col-sm-2">
+								 <select name="priceExplain" class="form-control" id="divprice">
+									<#list priceExplainList as pel>
+									<option  <#if purchase.priceExplain?? && purchase.priceExplain==pel.id >selected</#if> value="${(pel.id)!}"> ${(pel.name)!}</option>
+									</#list>
+									</select>
+								</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">信息有效期：</label>
+									<div style="width: 100px;" class="col-sm-2">
+										<label><input type="radio"<#if
+											purchase.expiryType?? && purchase.expiryType==0
+											>checked</#if> value="0" name="expiryType">一周</label>
+									</div>
+									<div style="width: 100px;" class="col-sm-2">
+										<label><input type="radio"<#if
+											purchase.expiryType?? && purchase.expiryType==1
+											>checked</#if> value="1" name="expiryType">一月</label>
+									</div>
+								</div>
+								
+								<div class="form-group">
+									<label class="col-sm-2 control-label">手机号码：</label>
+									<div  style="width: 200px;" class="col-sm-2">
+										<input type="text" disabled="disabled" class="form-control" id="phone"
+											value="${(purchase.phone)!}" name="phone">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">发布时间：</label>
+									<div style="width: 200px;" class="col-sm-2">
+										<input type="text"  disabled="disabled" class="form-control" id="createdAt"
+											value="${(purchase.createdAt)!?string('yyyy-MM-dd HH:mm:ss')}" name="createdAt">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">更新时间：</label>
+									<div style="width: 200px;" class="col-sm-2">
+										<input type="text"  disabled="disabled" class="form-control" id="updatedAt"
+											value="${(purchase.updatedAt)!?string('yyyy-MM-dd HH:mm:ss')}" name="updatedAt">
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-2 control-label">状态：</label>
+									<div style="width: 100px;" class="col-sm-2">
+										<label><input type="radio"
+											onclick="auditedCommentStatus()"<#if
+											purchase.infoStatus?? && purchase.infoStatus==0
+											>checked</#if> value="0" name="infoStatus">待审核</label>
+									</div>
+									<div style="width: 100px;" class="col-sm-2">
+										<label><input type="radio"
+											onclick="auditedCommentStatus()"<#if
+											purchase.infoStatus?? && purchase.infoStatus==1
+											>checked</#if> value="1" name="infoStatus">已通过</label>
+									</div>
+									<div style="width: 100px;" class="col-sm-2">
+										<label><input type="radio"
+											onclick="auditedCommentStatus()" <#if
+											purchase.infoStatus?? && purchase.infoStatus==2
+											>checked</#if> value="2" name="infoStatus">未通过</label>
+									</div>
+									<div style="width: 100px;" class="col-sm-2">
+										<label><input type="radio"
+											onclick="auditedCommentStatus()" <#if
+											purchase.infoStatus?? && purchase.infoStatus==3
+											>checked</#if> value="3" name="infoStatus">过期</label>
+									</div>
+									<div style="width: 100px;" class="col-sm-2">
+										<label><input type="radio"
+											onclick="auditedCommentStatus()"<#if
+											purchase.infoStatus?? && purchase.infoStatus==4
+											>checked</#if> value="4" name="infoStatus">删除</label>
+									</div>
+								</div>
+								<div class="form-group" id="auditedComments"
+									style="display: none;">
+									<label class="col-sm-2 control-label">失败原因：</label>
+									<div style="width: 250px;" class="col-sm-2">
+										<input type="text" class="form-control" id="auditedComment"
+											value="${(purchase.auditedComment)!}" name="auditedComment">
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-sm-offset-2 col-sm-10">
+										<button id="Button" onclick="javascript :history.back(-1);"
+											type="button" class="btn green pull-left">
+											返回 <i class="m-icon-swapright m-icon-white"></i>
+										</button>
+										<button type="button" onclick="updatePurchase()"
+											id="savetButton" class="btn green pull-left">
+											确定<i class="m-icon-swapright m-icon-white"></i>
+										</button>
+
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 内容结束 -->
+	<!-- 底部开始 -->
+	<#include "/include/foot.html" />
+	<!-- 底部结束 -->
+</body>
+<script>
+	jQuery(document).ready(function() {
+		Metronic.init(); // init metronic core componets
+		Layout.init(); // init layout
+		setChildAreas();
+		auditedCommentStatus();
+		manyicheck();
+	});
+	//选择省级地区
+	function setChildAreas() {
+		var parentId = $("#goodsProv").val();
+		if (parentId) {
+			//priceExplain(parentId);
+			var city = ${purchase.goodsCity};
+			$("#goodsCity").find('option').remove();
+			$.ajax({
+						type : "POST",
+						url : "${request.getContextPath()}/Purchase/getChildAreas.do?parentId="
+								+ parentId,
+						dataType : "json",
+						success : function(areas) {
+							if (areas && areas instanceof Array
+									&& areas.length > 0) {
+								$("#city").show();
+								var area;
+
+								for (var i = 0; i < areas.length; i++) {
+									area = areas[i];
+									if (area && typeof area == 'object') {
+										if (city && city == area.id) {
+											$("#goodsCity").append(
+													'<option  selected value="'+ area.id +'">'
+															+ area.name
+															+ '</option>');
+										} else {
+											$("#goodsCity").append(
+													'<option  value="'+ area.id +'">'
+															+ area.name
+															+ '</option>');
+										}
+
+									}
+								}
+							} else {
+								if (areas == null) {
+									$("#city").hide();
+								}
+							}
+						}
+					});
+		}
+	}
+
+	//国外和国内价格说明切换
+	function priceExplain( parentId ){ 
+		var flag=1;
+		if(parentId==392){
+			flag=2;//海外 
+		}
+		var priceExplain=${(purchase.priceExplain)!};
+		$.ajax({
+			type : "POST",
+			url : "${request.getContextPath()}/Purchase/priceExplain.do?flag="+flag,
+			dataType : "json",
+			success : function(data) {
+				if(data && data instanceof Array && data.length>0){
+					$("#divprice").find('option').remove();
+					for(var i=0;i<data.length;i++){
+						da = data[i];									
+					if(da && typeof da=='object'){
+						if(priceExplain==da.id){
+						$("#divprice").append('<option  selected value="'+ da.id +'">'+ da.name +'</option>');	
+
+						}else{
+						$("#divprice").append('<option  value="'+ da.id +'">'+ da.name +'</option>');	
+						 }
+						}
+					}							
+				}
+			}
+		});
+			
+	}
+	
+	function manyicheck(){
+		var mianyi= $("input[name=priceNegotiable]:checked").val();
+		if(mianyi==1){
+			$("#expectPrice").attr("disabled","disabled");
+			$("#expectPrice").val("");
+		}else{
+			$("#expectPrice").attr("disabled",false);
+			$("#expectPrice").val(${(purchase.expectPrice?string("#.##"))!});
+		}
+		
+	}
+
+	//修改
+	function updatePurchase() {
+		
+		var infoTitle=$("#infoTitle").val();
+		if(infoTitle==''||infoTitle==null){			
+			alert("采购标题不能为空！");
+			return;
+		}else{
+			var len = infoTitle.length;
+			if(len>20 || len<2){
+				alert("采购标题在2-20字以内！");
+				return ;
+			}
+			
+		}
+		var description=$("#description").val();
+		if(description==''||description==null){			
+			alert("采购详情不能为空！");
+			
+			return;
+		}else{
+			var len = description.length;
+			if(len>200){
+				alert("采购详情在200字以内！");
+				return;
+			}
+		}
+		var quantity=$("#quantity").val();
+		if(quantity==''||quantity==null){			
+			alert("数量不能为空！");
+			return;
+		}
+		
+		var expectPrice=$("#expectPrice").val();
+		var mianyi= $("input[name=priceNegotiable]:checked").val();
+		if(mianyi!=1){
+		if(expectPrice==''||expectPrice==null){			
+			alert("期望价格不能为空！");
+			return;
+		}
+		 }
+		var priceExplain= $("#divprice").val();
+		if(priceExplain==null||priceExplain==''){			
+			alert("请选择价格说明！");
+			return;
+		}
+		
+		var expiryType=$("input[name=expiryType]:checked").val();
+		if(expiryType==''||expiryType==null){			
+			alert("请选择有效期！");
+			return;
+		}
+		var phone=$("#phone").val();
+		if(phone==''||phone==null){			
+			alert("手机不能为空！");
+			return;
+		}
+		var b = $("input[name=infoStatus]:checked").val();
+		if (b == 2) {
+			var auditedComment=$("#auditedComment").val();
+			if(auditedComment==null || auditedComment==''){
+				alert("未通过原因不能为空！");
+				return;
+			}
+		}
+		
+		//数据验证
+		//var quantity = $("#quantity").val();
+		var reg = /^[0-9]+([\.][0-9]{0,5})?$/;
+		if (!reg.test(quantity)) {
+			alert("格式错误,数量为5位小数的数字！");
+			return;
+		}
+		//var expectPrice = $("#expectPrice").val();
+		var reg1 = /^[0-9]+([\.][0-9]{0,2})?$/;
+		if(expectPrice&&expectPrice!=null){
+		if (!reg1.test(expectPrice)) {
+			alert("格式错误,价格为2位小数的数字！");
+			return;
+		}
+		}
+		//var phone = $("#phone").val();
+		reg2 = /1\d{10}/;
+		if (!reg2.test(phone)) {
+			alert("格式错误,请输入正确的手机号码！");
+			return;
+		}
+		
+				$.ajax({
+					url : "${request.getContextPath()}/Purchase/updatePurchase.do",
+					type : "post",
+					dataType : "json",
+					async : false,
+					data : $("#purchasefrom").serialize(),
+					success : function(result) {
+						if (result.code == "success") {
+							alert(result.msg);
+							window.location.href = "${request.getContextPath()}/Purchase/list.do?status=1";
+
+						} else if (result.code == "error") {
+							alert(result.msg);
+						} else {
+							alert(result.msg);
+						}
+					}
+				});
+	}
+
+	function auditedCommentStatus() {
+		var b = $("input[name=infoStatus]:checked").val();
+		if (b == 2) {
+			$("#auditedComments").show();
+		} else {
+			$("#auditedComments").hide();
+			$("#auditedComment").val("");
+		}
+
+	}
+</script>
+</html>
+

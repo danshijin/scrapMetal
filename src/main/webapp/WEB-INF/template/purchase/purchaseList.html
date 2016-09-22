@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+
+<head>
+<meta charset="utf-8">
+<title>采购单</title>
+<link href="${request.getContextPath()}/Public/assets/admin/css/css.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/font-awesome/css/font-awesome.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/simple-line-icons/simple-line-icons.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/bootstrap/css/bootstrap.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/uniform/css/uniform.default.css"
+	rel="stylesheet" type="text/css">
+<link rel="${request.getContextPath()}/Public/stylesheet"
+	type="text/css"
+	href="assets/global/plugins/jquery-notific8/jquery.notific8.min.css" />
+<link
+	href="${request.getContextPath()}/Public/assets/global/css/components-rounded.css"
+	id="style_components" rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/css/plugins.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/admin/css/layout.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/admin/css/custom.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/global/css/kkpager.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="${request.getContextPath()}/Public/assets/admin/css/common.css"
+	rel="stylesheet" type="text/css">
+<link rel="shortcut icon"
+	href="${request.getContextPath()}/Public/assets/global/plugins/datatables/media/images/favicon.ico">
+<link href="${request.getContextPath()}/Public/css/customerDetail.css"
+	rel="stylesheet" type="text/css">
+
+<script type="text/javascript"
+	src="${request.getContextPath()}/Public/My97DatePicker/WdatePicker.js"></script>
+
+<script>
+	BASE_URL = '${request.getContextPath()}'
+</script>
+<style type="text/css">
+a:hover {
+	text-decoration: none;
+	color: red
+}
+
+a:visited {
+	text-decoration: none;
+}
+
+a:link {
+	text-decoration: none;
+}
+
+a:active {
+	text-decoration: none;
+}
+
+#remind1 {
+	font-family: 'Arial Normal', 'Arial';
+	background-color: rgb(247, 51, 51);
+	border: 1px solid rgb(247, 18, 18);
+	font-weight: 400;
+	font-size: 13px;
+	color: #F5F1F5;
+}
+
+#remind2 {
+	font-family: 'Arial Normal', 'Arial';
+	font-weight: 400;
+	font-size: 13px;
+	color: rgb(247, 18, 18);
+	border: 1px solid rgb(247, 18, 18);
+}
+</style>
+<body class="page-header-top-fixed">
+	<div class="page-header">
+		<!--头部开始-->
+		<#include "/include/top.html" />
+		<!-- 头部信息结束 -->
+		<!-- 头部菜单开始 -->
+		<#include "/include/top_menu.html" />
+		<!-- 头部菜单结束 -->
+	</div>
+	<div class="page-container">
+		<div class="page-content">
+			<div class="container-fluid">
+				<div class="row margin-top-10">
+					<div class="col-md-12">
+						<div id="u351" class="text">
+							<ul class="page-breadcrumb breadcrumb">
+											<li><a href="#">首页</a><i class="fa fa-circle"></i></li>
+											<li class="active">废金属管理<i class="fa fa-circle"></i>
+											</li>
+											<li class="active">采购单</li>
+											
+										</ul>
+
+							<div class="row margin-top-10">
+								<div class="col-md-12">
+									<div class="portlet light bordered">
+										<div class="portlet-body"
+											style="height: 13px; padding-top: 0px">
+											<div style="float: left;">
+												视图： 
+												<a href="${request.getContextPath()}/Purchase/list.do?status=1" <#if status ?? && status == 1>class="btn green"<#else>class="btn btn-default"</#if>>已通过</a>
+												<a href="${request.getContextPath()}/Purchase/list.do?status=0" <#if status ?? && status == 0>class="btn green"<#else>class="btn btn-default"</#if>>待审核</a>
+												<a href="${request.getContextPath()}/Purchase/list.do?status=3" <#if status ?? && status == 3>class="btn green"<#else>class="btn btn-default"</#if>>已过期</a>
+												<a href="${request.getContextPath()}/Purchase/list.do?status=2" <#if status ?? && status == 2>class="btn green"<#else>class="btn btn-default"</#if>>未通过</a>
+											</div>
+											<div align="right">
+										<label><span class="fa fa-trash-o"></span><a href="${request.getContextPath()}/Purchase/list.do?status=4" >回收站</a></label>	
+											</div>
+											
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="portlet light bordered">
+							<div class="portlet-body">
+								<form action="${request.getContextPath()}/Purchase/list.do"
+									id="batchform">
+									<div>
+										<table>
+											<tr><td width="20px"></td>
+												<td><select id="nameType" class="form-control"
+													name="nameType">
+														<option value="0"<#if nameType?? && nameType==0>
+															selected</#if> >信息标题</option>
+														<option value="1"<#if nameType?? && nameType==1>
+															selected</#if> >手机</option>
+														<option value="2"<#if nameType?? && nameType==2>
+															selected</#if> >姓名</option>
+														<option value="3"<#if nameType?? && nameType==3>
+															selected</#if> >公司名称</option>
+														<option value="4"<#if nameType?? && nameType==4>
+															selected</#if> >创建人</option>
+												</select></td>
+												<td>：
+												<td><input style="width: 283px;" class="form-control"
+													value="${(liekname)!}" id="liekname" name="liekname" /></td>
+												<td width="20px"></td>
+												<td width="103px" align="right">货物所在地 ：</td>
+												<td ><select id="goodsProv" class="form-control"
+													style="width: 120px;" id="goodsProv" name="goodsProv"
+													onchange="setChildAreas()">
+														<option value="">--请选择--</option> <#list areasList as
+														area>
+														<option <#if goodsProv?? &&
+															goodsProv==area.id>selected</#if>
+															value="${(area.id)!}">${(area.name)!}</option> </#list>
+												</select></td>
+												<td>
+													<div id="citys" style="display: none;">
+														<select class="form-control" id="goodsCity"
+															name="goodsCity"></select> <input type="hidden"
+															value="${(goodsCity)!}" id="city">
+													</div>
+												</td>
+											</tr>
+										</table>
+										<table>
+											<tr><td width="20px"></td>
+												<td height="80px"><select id="dateType"
+													class="form-control" name="dateType">
+														<option value="0"<#if dateType?? && dateType==0>
+															selected</#if> >发布时间</option>
+														<option value="1"<#if dateType?? && dateType==1>
+															selected</#if> >更新时间</option>
+												</select>
+												<td>：</td>
+
+
+												<td><input class="form-control" style="width: 130px;"
+													id="startDate" name="startDate" value="${(startDate)!}"
+													onClick="WdatePicker()" /></td>
+												<td align="center">&nbsp;--&nbsp;&nbsp;</td>
+												<td><input class="form-control" style="width: 130px;"
+													value="${(endDate)!}" onClick="WdatePicker()" id="endDate"
+													name="endDate" /></td>
+												<td width="20px"></td>
+												<td width="103px" align="right">分 类：</td>
+												<td>												
+												<select class="form-control" style="width: 120px;"
+													id="itemId" name="itemId">
+														<option value="-1" <#if
+															itemId==-1>selected</#if>>--请选择--</option> <#list itemList as
+														item>
+														<option <#if itemId==item.id>selected</#if>
+															value="${(item.id)!}" > ${(item.name)!}</option> </#list>
+												</select>
+
+													</div></td>
+
+												<td>
+												<input type="hidden" id="status" name="status" value="${(status)!}">
+													<div class="col-md-2">
+														<i style="font-style: normal;"><button
+																class="btn green dropdown-toggle" onclick="resets()"
+																data-toggle="dropdown" aria-expanded="true">重置
+															</button></i>
+													</div>
+												</td>
+												<td>
+													<div class="col-md-2">
+														<button class="btn green">
+															<i class="fa fa-search"></i>搜索
+														</button>
+													</div>
+												</td>
+											<tr>
+										</table>
+									</div>
+
+
+									<div class="row">
+										<div
+											style="float: left; width: 28%; text-align: right; padding-left: 18px;">
+											<div class="btn-group pull-left">
+												<i style="font-style: normal;"><button
+														class="btn green dropdown-toggle"
+														onclick="CommonUtils.doExecute('${request.getContextPath()}/Purchase/batchUpdatePurchase.do');"
+														data-toggle="dropdown" aria-expanded="true">批量更新
+													</button ></i>  <i style="font-style: normal;"><button   
+													<#if  status?? && status==4> disabled="disabled" </#if>
+														class="btn green dropdown-toggle"
+														onclick="CommonUtils.doExecute('${request.getContextPath()}/Purchase/delPurchase.do');"
+														data-toggle="dropdown" aria-expanded="true">批量删除
+													</button></i>
+											</div>
+										</div>
+
+										<div
+											style="float: right; width: 28%; text-align: right; padding-right: 18px;">
+											<a class="btn green"
+												href="${request.getContextPath()}/Purchase/toAddPurchas.do">
+												<i class="fa fa-plus"></i> 新建采购单
+											</a>
+											<p class="btn green" onclick="trailExport()">
+												<i class="fa fa-file-excel-o"></i> 导出
+											</p>
+										</div>
+									</div>
+
+								</form>
+								<div class="table-scrollable">
+
+
+
+									<table
+										class="table table-striped table-bordered table-hover ttTbl"
+										id="myTable">
+										<thead>
+											<tr>
+												<th class="table-checkbox"><input type="checkbox"
+													class="group-checkable" data-set="#myTable .checkboxes" />
+												</th>
+												<th scope="col">手机</th>
+												<th scope="col">分类</th>
+												<th scope="col">信息标题</th>
+												<th scope="col">货物所在地</th>
+												<th scope="col">数量</th>
+												<th scope="col">期望价格</th>
+												<th scope="col">有效期</th>
+												<th scope="col">创建人</th>
+												<th scope="col">更新时间</th>
+												<th scope="col">操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<#list purchasList as purchas>
+											<tr>
+												<td><input type="checkbox" class="checkboxes"
+													name="checkboxes" value="${purchas.id}" /></td>
+												<td>${(purchas.phone)!}</td>
+												<td>${(purchas.itemName)!}</td>
+												<td><a
+													href="${request.getContextPath()}/Purchase/purchasDetail.do?id=${purchas.id}">${(purchas.infoTitle)!}</a></td>
+												<td><#if purchas.provName?? && purchas.cityName?? &&
+													purchas.provName!=purchas.cityName> ${(purchas.provName)!}
+													</#if>${(purchas.cityName)!}</td>
+												<td>${purchas.quantity?string("#.#####")}</td>
+												<td><#if purchas.priceNegotiable?? &&
+													purchas.priceNegotiable==0 > ${(purchas.expectPrice?string("#.##"))!} <#if
+													purchas.expectPriceUnit?? && purchas.expectPriceUnit==0 > 元
+													<#else> 美元 </#if> <#else> 面议 </#if></td>
+												<td><#if purchas.expiryType?? && purchas.expiryType==0
+													> 一周 </#if> <#if purchas.expiryType?? &&
+													purchas.expiryType==1 > 一月 </#if></td>
+												<td>${(purchas.createdByName)!}</td>
+												<td>${(purchas.updatedAt)!?string('yyyy-MM-dd
+													HH:mm:ss')}</td>
+												<td ><#if purchas.infoStatus?? && purchas.infoStatus==0
+													> <a class="btn btn-xs green"
+													href="${request.getContextPath()}/Purchase/toUpdatePurchas.do?id=${purchas.id}">修改</a>
+													</#if> <#if purchas.infoStatus?? && purchas.infoStatus==1 >
+													<a class="btn btn-xs green"
+													href="${request.getContextPath()}/Purchase/toUpdatePurchas.do?id=${purchas.id}">修改</a>
+													<a
+													href="${request.getContextPath()}/order/toAddOrderByPurchase.do?id=${purchas.id}"
+													class="btn btn-xs green">生成订单</a> 
+													
+													</#if> <#if
+													purchas.infoStatus?? && purchas.infoStatus==2 > <a
+													href="${request.getContextPath()}/Purchase/toUpdatePurchas.do?id=${purchas.id}"
+													class="btn btn-xs green">修改</a> </#if> <#if
+													purchas.infoStatus?? && purchas.infoStatus==3 > <a
+													href="${request.getContextPath()}/Purchase/toUpdatePurchas.do?id=${purchas.id}"
+													class="btn btn-xs green">修改</a> </#if> <#if
+													purchas.infoStatus?? && purchas.infoStatus==4 > <a
+													href="${request.getContextPath()}/Purchase/purchasDetail.do?id=${purchas.id}"
+													class="btn btn-xs green">查看</a> </#if>
+												</td>
+											</tr>
+											</#list>
+										</tbody>
+									</table>
+								</div>
+								<div style="width: 80%; margin: 0 auto;">
+									<div id="kkpager"></div>
+									<input type="hidden" value="${totalPage}" id="totalPage">
+									<input type="hidden" value="${totalRecords}" id="totalRecords">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 内容结束 -->
+	<!-- 底部开始 -->
+	<#include "/include/foot.html" />
+	<!-- 底部结束 -->
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/jquery.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/jquery-migrate.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/jquery-ui/jquery-ui.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap/js/bootstrap.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/jquery.blockui.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/jquery.cokie.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/uniform/jquery.uniform.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/jquery-notific8/jquery.notific8.min.js"></script>
+
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"
+		type="text/javascript"></script>
+
+	<script
+		src="${request.getContextPath()}/Public/assets/global/scripts/metronic.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/admin/scripts/layout.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/global/plugins/kkpager.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/admin/scripts/commonUtils.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/admin/scripts/priceFloat.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/admin/scripts/tc.min.js"
+		type="text/javascript"></script>
+	<script
+		src="${request.getContextPath()}/Public/assets/admin/scripts/ajaxfileupload.js"
+		type="text/javascript"></script>
+
+	<script>
+		jQuery(document).ready(function() {
+			Metronic.init(); // init metronic core componets
+			Layout.init(); // init layout
+			setChildAreas();
+			CommonUtils.checkInit();
+		});
+
+		function setChildAreas() {
+			var parentId = $("#goodsProv").val();
+			if (parentId) {
+				var city = "${goodsCity}";
+				$("#goodsCity").find('option').remove();
+				
+						$.ajax({
+							type : "POST",
+							url : "${request.getContextPath()}/Purchase/getChildAreas.do?parentId="
+									+ parentId,
+							dataType : "json",
+							success : function(areas) {
+								if (areas && areas instanceof Array
+										&& areas.length > 0) {
+									$("#goodsCity")
+											.append(
+													'<option  selected value="">--请选择--</option>');
+									$("#citys").show();
+									var area;
+									for (var i = 0; i < areas.length; i++) {
+										area = areas[i];
+										if (area && typeof area == 'object') {
+											if (city == area.id) {
+												$("#goodsCity").append(
+														'<option  selected value="'+ area.id +'">'
+																+ area.name
+																+ '</option>');
+											} else {
+												$("#goodsCity").append(
+														'<option  value="'+ area.id +'">'
+																+ area.name
+																+ '</option>');
+											}
+
+										}
+									}
+								} else {
+									if (areas == null) {
+										$("#goodsCity").find('option').remove();
+										$("#citys").hide();
+									}
+								}
+							}
+						});
+			} else {
+				$("#goodsCity").find('option').remove();
+				$("#citys").hide();
+			}
+		}
+
+		//导出
+		function trailExport() {
+			var arr = $("#myTable tbody input:checked");
+			var ids = "";
+			for (var i = 0; i < arr.length; i++) {
+				if (i > 0) {
+					ids += ",";
+				}
+				ids += arr[i].value;
+			}
+
+			var flag = $("#flag").val();
+			var totalPage = $('#totalPage').val();
+			var totalRecords = $('#totalRecords').val();
+			var nameType = $("#nameType").val();
+			var liekname = $("#liekname").val();
+			var goodsProv = $("#goodsProv").val();
+			var goodsCity = $("#city").val();
+			var dateType = $("#dateType").val();
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();
+			var nameType = $("#nameType").val();
+			var status = $("#status").val();
+			var itemId = $("#itemId").val();
+			window.location.href = BASE_URL + "/Purchase/ExporPurchase.do?ids="
+					+ ids + "&nameType=" + nameType + "&liekname=" + liekname
+					+ "&goodsProv=" + goodsProv + "&goodsCity=" + goodsCity
+					+ "&dateType=" + dateType + "&startDate=" + startDate
+					+ "&endDate=" + endDate + "&status=" + status+"&itemId="+itemId;
+
+		}
+		//重置		
+		function resets() {
+			$("#liekname").val("");
+			$("#goodsProv").val("");
+			$("#startDate").val("");
+			$("#endDate").val("");
+			
+			$('#itemId option[value=-1]').attr('selected',true);
+			setChildAreas();
+
+		}
+		//初始化分页插件
+		function getParameter(name) {
+			var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+			var r = window.location.search.substr(1).match(reg);
+			if (r != null)
+				return unescape(r[2]);
+			return null;
+		}
+
+		//init
+		$(function() {
+			var totalPage = $('#totalPage').val();
+			var totalRecords = $('#totalRecords').val();
+			var nameType = $("#nameType").val();
+			var liekname = $("#liekname").val();
+			var goodsProv = $("#goodsProv").val();
+			var goodsCity = $("#city").val();
+			var dateType = $("#dateType").val();
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();
+			var nameType = $("#nameType").val();
+			var status = $("#status").val();
+			var itemId = $("#itemId").val();
+			var pageNo = getParameter('pno');
+			if (!pageNo) {
+				pageNo = 1;
+			}
+			//生成分页
+			//有些参数是可选的，比如lang，若不传有默认值
+			kkpager.generPageHtml({
+				pno : pageNo,
+				//总页码
+				total : totalPage,
+				//总数据条数
+				totalRecords : totalRecords,
+
+				getLink : function(n) {
+					return this.hrefFormer + this.hrefLatter + "?pno=" + n
+							+ "&nameType=" + nameType + "&liekname=" + liekname
+							+ "&goodsProv=" + goodsProv + "&goodsCity="
+							+ goodsCity + "&dateType=" + dateType
+							+ "&startDate=" + startDate + "&endDate=" + endDate
+							+ "&status=" + status+"&itemId="+itemId;
+
+				}
+			});
+
+		});
+	</script>
+
+</body>
+</html>

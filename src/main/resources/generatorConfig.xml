@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration 
+	PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" 
+	"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry
+		location="D:\repository\mysql\mysql-connector-java\5.1.21\mysql-connector-java-5.1.21.jar" />
+	<context id="context1" targetRuntime="MyBatis3">
+		
+		<plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
+		<plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
+		<plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+		
+		<commentGenerator>
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://172.16.9.22:3306/cuohe?autoReconnect=true"
+			userId="kaifa_user" password="123456" />
+			
+		<javaTypeResolver type="org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl">
+			<property name="forceBigDecimals" value="false" />
+		</javaTypeResolver>
+		
+		<javaModelGenerator targetPackage="com.smm.scrapMetal.domain" targetProject="D:\work\scrapMetal\src\main\java" />
+		
+		<sqlMapGenerator targetPackage="mapper" targetProject="D:\work\scrapMetal\src\main\resources" />
+		
+		<javaClientGenerator type="XMLMAPPER" targetPackage="com.smm.scrapMetal.dao" targetProject="D:\work\scrapMetal\src\main\java">
+			<property name="" value=""/>
+		</javaClientGenerator>
+		
+		<table tableName="fj_totalChats" domainObjectName="TotalChats" 
+			enableCountByExample="false"
+			enableDeleteByExample="false"
+			enableSelectByExample="false"
+			enableUpdateByExample="false" >
+			<property name="useActualColumnNames" value="true"/>
+		</table>
+	</context>
+</generatorConfiguration>

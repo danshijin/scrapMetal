@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.smm.scrapMetal.dao.SupplyDAO">
+	<select id="supplyList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.dto.SupplyListView">
+	     SELECT su.id AS id,su.phone AS phone,su.priceNegotiable,su.isCreatedByCustomer,it.name AS 'name',su.infoTitle AS infoTitle,a1.name AS proyName,a2.name AS cityName,
+			su.usableQuantity AS usableQuantity,su.price AS price,su.expiryType AS expiryType,su.infoStatus,su.customerId,cus.`name` as customerName,cus.nickName,su.createdAt,
+			su.createdBy AS createdBy,su.updatedAt AS updatedAt,su.goodsProv,su.goodsCity,su.itemId,cus.companyName,us.`name` as uname 
+			FROM fj_supply su 
+			left join fj_items it on su.itemId = it.id 
+			LEFT JOIN ch_areas a1 on su.goodsProv = a1.id 
+			LEFT JOIN ch_areas a2 on su.goodsCity = a2.id 
+			LEFT JOIN fj_customer cus on su.customerId = cus.id 
+			LEFT JOIN fj_users us on su.createdBy =  us.id 
+			where 1 = 1 
+			<if test="status != 4">
+				and su.infoStatus != 4 
+			</if>
+			<if test="status !=null and status != '' and status != -1">
+				and su.infoStatus = ${status}
+			</if>
+			<if test="type !=null and type == 1"><!-- 标题-->
+				and su.infoTitle like CONCAT('%',#{recommend},'%') 
+			</if>
+			<if test="type !=null and type == 2"><!-- 电话-->
+				and su.phone like CONCAT('%',#{recommend},'%') 
+			</if>
+			<if test="type !=null and type == 3"><!-- 客户名称-->
+				and cus.name like CONCAT('%',#{recommend},'%') 
+			</if>
+			<if test="type !=null and type == 4"><!-- 公司名称-->
+				and cus.companyName like CONCAT('%',#{recommend},'%') 
+			</if>
+			<if test="type !=null and type == 5"><!-- 创建人-->
+				and (case when su.isCreatedByCustomer = 1 then (case when cus.`name` is NULL then cus.nickName else cus.`name` end) else us.`name` end) like CONCAT('%',#{recommend},'%') 
+			</if>
+			<if test="prov !=null and prov != ''">
+				and su.goodsProv = ${prov}
+			</if>
+			<if test="city !=null and city != '' and city != 'null'">
+				and su.goodsCity = ${city}
+			</if>
+			<if test="attribute !=null and attribute == 1">
+				<if test="startTime !=null and startTime != ''">
+					and su.createdAt &gt;= #{startTime}
+				</if>
+				<if test="endTime !=null and endTime != ''">
+					and su.createdAt &lt;= #{endTime}
+				</if>
+			</if>
+			<if test="attribute !=null and attribute == 2">
+				<if test="startTime !=null and startTime != ''">
+					and su.updatedAt &gt;= #{startTime}
+				</if>
+				<if test="endTime !=null and endTime != ''">
+					and su.updatedAt &lt;= #{endTime}
+				</if>
+			</if>
+			<if test="itemid !=null and itemid != ''">
+				and su.itemId = ${itemid}
+			</if>
+			<if test="checks != null and checks != ''">
+				and su.id in (${checks}) 
+			</if>
+			<if test="isPriced != null and isPriced != ''">
+				and su.price > 0 
+			</if>
+			order by su.updatedAt desc 
+	        <if test="startNum!=null and endNum !=null ">
+	        	limit ${startNum},${endNum}
+	        </if>
+	        
+	</select>
+	<select id="supplyDetailById" parameterType="java.util.Map" resultType="com.smm.scrapMetal.dto.SupplyListView">
+				
+		SELECT su.id AS id,su.phone AS phone,su.lastInfoStatus,su.isCreatedByCustomer,su.isUpdatedByCustomer,su.itemId AS itemId,it.`name` AS iname,su.customerId AS customerId,su.goodsProv,su.goodsCity,
+				su.infoTitle AS infoTitle,su.description AS description,a1.name AS proyName,a2.name AS cityName,
+				su.usableQuantity AS usableQuantity,su.price AS price,su.expiryType AS expiryType,su.priceUnit AS priceUnit,su.priceNegotiable AS priceNegotiable,
+				su.priceExplain AS priceExplain,pr.id AS priceExplainId,pr.`name` AS priceExplainName,pr.`name` AS pname,su.delivery AS delivery,del.id AS deliveryId,
+				del.`name` AS delName,del.`name` AS dname,
+				(CASE cus.entTypes WHEN 29  THEN '贸易商' WHEN 30  THEN '冶炼' WHEN 31  THEN '加工制作' WHEN 32  THEN '其他' END) AS entTypes ,
+				cus.nickName,cus.`name` AS customerName,su.infoStatus AS infoStatus,su.auditedComment AS auditedComment,
+				su.createdAt AS createdAt,su.createdBy AS createdBy,su.updatedAt AS updatedAt,su.updatedBy AS updatedBy,
+				us.id uid,us.name AS uname
+				FROM fj_supply su 
+				LEFT JOIN fj_items it ON su.itemId = it.id
+				LEFT JOIN fj_customer cus ON su.customerId = cus.id
+				LEFT JOIN fj_priceExplain pr ON su.priceExplain = pr.id
+				LEFT JOIN fj_delivery del ON su.delivery = del.id
+				LEFT JOIN ch_areas a1 ON su.goodsProv = a1.id
+				LEFT JOIN ch_areas a2 ON su.goodsCity = a2.id
+				LEFT JOIN fj_users us ON su.updatedBy = us .id
+				WHERE su.id = #{suppid} 
+	</select>
+	
+	<insert id="addSupply" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		INSERT INTO fj_supply 
+		( 
+		itemId, 
+		customerId, 
+		isCreatedByCustomer,
+		isUpdatedByCustomer,
+		goodsProv, 
+		goodsCity,
+		infoTitle,
+		description, 
+		frozenQuantity,
+		usableQuantity, 
+		quantityUnit,
+		priceNegotiable,
+		price, 
+		priceUnit,
+		priceExplain,
+		delivery,
+		expiryType,
+		phone,
+		infoStatus,
+		createdAt,
+		createdBy,
+		updatedBy,
+		updatedAt,
+		auditedComment
+		)
+		VALUES(
+		#{itemId}, 
+		#{customerId}, 
+		#{isCreatedByCustomer},
+		#{isUpdatedByCustomer},
+		#{goodsProv}, 
+		#{goodsCity},
+		#{infoTitle},
+		#{description}, 
+		#{frozenQuantity},
+		#{usableQuantity}, 
+		#{quantityUnit},
+		#{priceNegotiable},
+		#{price}, 
+		#{priceUnit},
+		#{priceExplain},
+		#{delivery},
+		#{expiryType},
+		#{phone},
+		#{infoStatus},
+		#{createdAt},
+		#{createdBy},
+		#{updatedBy},
+		#{updatedAt},
+		#{auditedComment}
+		)
+	</insert>
+	
+	<insert id="addSupplyImages" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+		INSERT INTO fj_supply_images 
+		( 
+		supplyId, 
+		name, 
+		imgOrder
+		)
+		VALUES(
+		#{supplyId}, 
+		#{name}, 
+		#{imgOrder}
+		)
+	</insert>
+	
+	<update id="deleteSupplyById" parameterType="java.util.Map">
+		UPDATE fj_supply SET infoStatus = 4 WHERE id in (${id})
+	</update>
+	
+	<update id="updateSupplyById" parameterType="java.util.Map">
+		UPDATE fj_supply SET updatedAt = #{date}
+		<if test="status !=null and status != ''">
+			,infoStatus = #{status} 
+		</if>
+		 WHERE id = #{id}
+	</update>
+	
+	
+	<select id="supplyListAPI" parameterType="java.util.Map" resultType="com.smm.scrapMetal.dto.SupplyListView">
+		SELECT su.id AS id,su.phone AS phone,it.name AS 'name',su.priceNegotiable,su.infoTitle AS infoTitle,a1.name AS proyName,a2.name AS cityName,pr.id as priceExplainId,pr.`name` as priceExplainName,
+			su.usableQuantity AS usableQuantity,su.price AS price,su.priceUnit AS priceUnit,su.expiryType AS expiryType,su.quantityUnit AS quantityUnit,
+			su.createdBy AS createdBy,su.updatedAt AS updatedAt,del.id as deliveryId,del.name AS delName,cus.name AS customerName,su.priceExplain AS priceExplain,su.delivery AS delivery
+			FROM fj_supply su,fj_items it,ch_areas a1,ch_areas a2,fj_delivery del,fj_customer cus,fj_priceExplain pr    
+			WHERE su.itemId = it.id 
+			AND su.goodsProv = a1.id 
+			AND su.goodsCity = a2.id 
+			AND su.delivery = del.id 
+			AND su.customerId = cus.id 
+			and su.priceExplain = pr.id 
+			and su.infoStatus = 1 
+			and su.usableQuantity &gt; 0
+			<if test="infoTitle !=null and infoTitle != ''">
+				and su.infoTitle like CONCAT('%',#{infoTitle},'%') 
+			</if>
+			<if test="itemid !=null and itemid != ''">
+				and su.itemId = ${itemid} 
+			</if>
+			<if test="goodsProy !=null and goodsProy != ''">
+				and su.goodsProv = ${goodsProy} 
+			</if>
+			<if test="goodsCity !=null and goodsCity != ''">
+				and su.goodsCity = ${goodsCity} 
+			</if>
+			<if test="sortType !=null and sortType == 0">
+				order by su.updatedAt 
+			</if>
+			<if test="sortType !=null and sortType == 1">
+				order by su.price 
+			</if>
+			<if test="sortType !=null and sortType == 2">
+				order by su.usableQuantity 
+			</if>
+			<if test="sort !=null and sort == 0">
+				
+			</if>
+			<if test="sort !=null and sort == 1">
+				desc 
+			</if>
+			<if test="startNum!=null and endNum !=null ">
+	        	limit ${startNum},${endNum}
+	        </if>
+	</select>
+	
+	<update id="updateSupplyAPI" parameterType="com.smm.scrapMetal.domain.Supply">
+		UPDATE fj_supply
+		SET 
+		id = #{id}
+		<if test="itemId !=null and itemId !=''">
+			,itemId = #{itemId} 
+		</if>
+		<if test="goodsProv !=null and goodsProv != ''">
+			,goodsProv = #{goodsProv} 
+		</if>
+		<if test="goodsCity !=null and goodsCity != ''">
+			,goodsCity = #{goodsCity} 
+		</if>
+		<if test="infoTitle !=null and infoTitle != ''">
+			,infoTitle = #{infoTitle} 
+		</if>
+		<if test="description !=null and description != ''">
+			,description = #{description} 
+		</if>
+		<if test="usableQuantity !=null and usableQuantity != ''">
+			,usableQuantity = #{usableQuantity} 
+		</if>
+		<if test="priceNegotiable !=null">
+			,priceNegotiable = #{priceNegotiable} 
+		</if>
+		<if test="price !=null">
+			,price = #{price} 
+		</if>
+		<if test="priceUnit !=null">
+			,priceUnit = #{priceUnit} 
+		</if>
+		<if test="priceExplain !=null and priceExplain != ''">
+			,priceExplain = #{priceExplain} 
+		</if>
+		<if test="expiryType !=null">
+			,expiryType = #{expiryType} 
+		</if>
+		<if test="delivery !=null and delivery != ''">
+			,delivery = #{delivery} 
+		</if>
+		<if test="infoStatus !=null">
+			,infoStatus = #{infoStatus} 
+		</if>
+		<if test="updatedBy !=null and updatedBy != ''">
+			,updatedBy = #{updatedBy} 
+		</if>
+		<if test="updatedAt !=null and updatedAt != ''">
+			,updatedAt = #{updatedAt} 
+		</if>
+		<if test="auditedComment !=null and auditedComment != ''">
+			,auditedComment = #{auditedComment} 
+		</if>
+		<if test="isCreatedByCustomer !=null">
+			,isCreatedByCustomer = #{isCreatedByCustomer} 
+		</if>
+		<if test="isUpdatedByCustomer !=null">
+			,isUpdatedByCustomer = #{isUpdatedByCustomer} 
+		</if>
+		<if test="lastInfoStatus !=null">
+			,lastInfoStatus = #{lastInfoStatus} 
+		</if>
+		WHERE
+		id = #{id} 
+	</update>
+	
+	<select id="querySupplyImages" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.SupplyImages">
+		select id,supplyId,name,name as imgName,imgOrder from fj_supply_images where supplyId = #{supplyId}
+	</select>
+	<select id="suppImg" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.SupplyImages">
+		select name from fj_supply_images where supplyId = #{supplyId} order by imgOrder LIMIT 1
+	</select>
+	
+	<select id="commonSearchList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Srchword">
+		SELECT id,name,srchOrder FROM fj_srchword 
+	</select>
+	
+	<select id="searchSupplyList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.dto.SupplyListView">
+		SELECT id,infoTitle,updatedAt FROM fj_supply WHERE infoStatus = 1 and usableQuantity &gt; 0 and infoTitle like CONCAT('%',#{name},'%') order by updatedAt LIMIT 0,10
+	</select>
+	<!-- 共多少赞 -->
+	<select id="queryUserZan" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM fj_upvote WHERE source = 1 AND sourceId = #{id}
+	</select>
+	<!-- 是否点赞 -->
+	<select id="queryUserWhetherZan" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM fj_upvote WHERE source = 1 AND sourceId = #{id} AND customerId = #{customerId}
+	</select>
+	<!-- 是否收藏 -->
+	<select id="whetherShouCang" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT COUNT(*) FROM fj_favorite WHERE source = 1 AND sourceId = #{id} AND customerId = #{customerId}
+	</select>
+	<!-- 通过名称查找是否存在 -->
+	<select id="queryByName" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.SrchTimes">
+		SELECT id,NAME,srchTimes FROM fj_srchTimes WHERE NAME like CONCAT('%',#{name},'%') 
+	</select>
+	<!-- 添加 -->
+	<insert id="insertSrchTimes" parameterType="java.util.Map">
+		INSERT INTO fj_srchTimes 
+		( 
+		name, 
+		srchTimes
+		)
+		VALUES(
+		#{name}, 
+		#{srchTimes}
+		)
+	</insert>
+	<!-- 修改 -->
+	<update id="updateSrchTimes" parameterType="java.util.Map">
+		UPDATE fj_srchTimes SET srchTimes = #{srchTimes} WHERE id in (${id})
+	</update>
+	
+	<!-- 处理定时任务 -->
+	<!-- 清空搜索关键字表 -->
+	<select id="cleanSrchWord" parameterType="java.util.Map">
+		truncate table fj_srchword
+	</select>
+	<!-- 查询热门搜索前八条数据 -->
+	<select id="querySrchTimesList" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.SrchTimes">
+		SELECT id,NAME,srchTimes FROM fj_srchTimes ORDER BY srchTimes DESC LIMIT 0,8
+	</select>
+	<!-- 插入搜索关键字表 -->
+	<insert id="insertSrchWord" parameterType="java.util.Map">
+		INSERT INTO fj_srchword 
+		( 
+		name, 
+		srchOrder
+		)
+		VALUES(
+		#{name}, 
+		#{srchOrder}
+		)
+	</insert>
+	
+	<!-- 查询国内的交货方式 -->
+	<select id="queryDomestic" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Delivery">
+		select id,name,isDomestic,isDefault,isDel,createdAt,createdBy from fj_delivery where isDomestic = 1
+	</select>
+	<!-- 查询国外的交货方式 -->
+	<select id="queryAbroad" parameterType="java.util.Map" resultType="com.smm.scrapMetal.domain.Delivery">
+		select id,name,isDomestic,isDefault,isDel,createdAt,createdBy from fj_delivery where isDomestic = 0
+	</select>
+	
+	<!-- 删除供货单图片-->
+	<delete id="deleteSupplyImages" parameterType="String">
+		delete from fj_supply_images where supplyId = #{suppId}
+	</delete>
+	
+</mapper>

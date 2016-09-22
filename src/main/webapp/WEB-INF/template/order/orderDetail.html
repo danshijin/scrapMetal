@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<link href="${request.getContextPath()}/Public/css/customerDetail.css"
+	rel="stylesheet" type="text/css">
+<!-- 模态窗口编辑模板 -->
+	<!-- 窗口标题开始 -->
+	<div class="modal-header">
+		<h4 class="modal-title" style="font-weight: bold;">订单编号:${(order.orderNo)!''}</h4>
+	</div>
+	<!-- 窗口标题结束-->
+	<!-- 内容开始 -->
+	<div class="modal-body">
+		<div class="portlet-body form">
+			<form role="form" class="form-horizontal" id="myForm">
+				<div class="form-body">
+					<div class="form-group form-md-radios">
+						<div>
+							<div style="margin-left: 20px;">
+
+								<table class="ttTblNoBorder" style="width: 100%;">
+									<tr>
+										<td style="width: 50%"><b>卖方</b></td>
+										<td style="width: 50%"><b>买方</b></td>
+									</tr>
+									<tr>
+										<td>企业名称:<font <#if order.source==1>color="red"</#if>>${(order.sellerCompanyName)!''}</font></td>
+										<td>企业名称:<font <#if order.source==2>color="red"</#if>>${(order.buyerCompanyName)!''}</font></td>
+									</tr>
+									<tr>
+										<td>联系人:&nbsp;${(order.sellerContacter)!''}</td>
+										<td>联系人:&nbsp;${(order.buyerContacter)!''}</td>
+									</tr>
+									<tr>
+										<td>联系电话:&nbsp;${(order.sellerPhone)!''}</td>
+										<td>联系电话:&nbsp;${(order.buyerPhone)!''}</td>
+									</tr>
+									<tr>
+										<td>地址:&nbsp;${(order.sellAddress)!''}</td>
+										<td>地址:&nbsp;${(order.buyAddress)!''}</td>
+									</tr>
+								</table>
+								<br />
+							</div>
+							<br>
+							<table class="ttTbl" cellspacing="1" border="1"
+								id="tb_order_detail" style="text-align: center;">
+								<thead id="ttHead">
+									<th>信息标题</th>
+									<th>货物所在地</th>
+									<th>数量</th>
+									<th>单价</th>
+									<th>总金额</th>
+									<th>价格说明</th>
+									<th>交货方式</th>
+								</thead>
+								<tbody class="ttTbody">
+									<tr>
+										<td>
+											<#if order.source==1>
+												<a href="${request.getContextPath()}/supply/supplyDetail.do?id=${order.sourceId}">${order.infoTitle}</a>
+											<#elseif  order.source==2>
+												<a href="${request.getContextPath()}/Purchase/purchasDetail.do?id=${order.sourceId}">${order.infoTitle}</a>
+											<#elseif  order.source==3>
+												${order.infoTitle}
+											</#if>
+										</td>
+										<td>${order.pcname}</td>
+										<td>${order.quantity}</td>
+										<td>${order.price}</td>
+										<td>${(order.quantity*order.price)?string('#.##')}<#if
+											order.priceUnit??&&order.priceUnit==0>元<#else>美元</#if></td>
+										<td>${order.strPriceExplain}</td>
+										<td>${order.deliveryName}</td>
+									</tr>
+								</tbody>
+							</table>
+							<div style="text-align: right; width: 100%;">
+								总计金额 ： <span style="color: red; font-size: 20px;"
+									id="totalPrice">${totalSumMoney?string('#.##')}</span>&nbsp;<#if
+								order.priceUnit??&&order.priceUnit==0>元<#else>美元</#if>
+							</div>
+						</div>
+						<div style="margin:0 auto; width:100%;margin-top: 20px;text-align: center;">
+								<button type="button"  data-dismiss="modal">关闭</button>
+						</div>
+						<!-- <div class="modal-footer">
+							<button type="button" class="btn default fa fa-times"  onclick="history.go(-1);">关闭</button>
+						</div> -->
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+	<!-- 内容结束 -->
+	<!-- 底部按钮开始 -->
+	<!-- 结束 -->
+
+<!-- 业务处理开始 -->
+<script>
+	$(document).ready(function() {
+		$("#myModal").on("shown.bs.modal", function() {
+			$("#myInput").focus()
+		});
+		$("div.food_cell").click(function() {
+			$("#myModal").modal("toggle")
+		});
+	});
+	/* function doClose() {
+
+		$(".editModal").modal('hide');
+		$(".editModal").empty();
+	} */
+</script>
